@@ -425,6 +425,7 @@ def people_list(request):
             "goal_progress_percent": round(float(revenue / target * 100), 1) if target else 0,
             "commission": str(stats.get("commission", Decimal("0"))),
             "orders": stats.get("orders", 0),
+            "attendances": attendances,
             "conversion_rate_percent": round(sales_count / attendances * 100, 1) if attendances else 0,
             "cancelled": stats.get("cancelled", 0),
         })
@@ -559,6 +560,149 @@ def assistant_legacy(request):
     return Response({"answer": answer, "source": "business_rules", "demo": True})
 
 
+def _assistant_performance_evidence(user, role, company, start, end, question, *, selected_employee=False):
+    """Attach exact dashboard figures when a question asks about results or coaching."""
+    normalized = question.casefold()
+    question_tokens = set(re.findall(r"[a-záéíóúâêôãõç]+", normalized))
+    coaching_terms = (
+        "melhorar minha conversão", "melhorar minha conversao", "melhorar meu resultado",
+        "melhorar meu desempenho", "treinar", "treinamento", "acompanhar meu desempenho",
+        "onde estou abaixo", "meu ponto fraco", "minha conversão", "minha conversao",
+    )
+    personal_scope = role == "funcionario" or selected_employee
+    team_terms = (
+        "quem vendeu menos", "vendeu menos", "venderam menos", "menos vendeu", "menos vendido", "menor venda", "menores vendas",
+        "menor faturamento", "menores faturamentos", "menor receita", "menores receitas", "vendas mais baixas", "abaixo da meta",
+        "menor conversão", "menor conversao", "precisa de acompanhamento", "diferença entre vendedores",
+        "diferenças entre vendedores", "diferenca entre vendedores", "diferencas entre vendedores", "compare os vendedores",
+    )
+    scoped_teams = Team.objects.none()
+    mentioned_sellers = set()
+    if role in {"gerente", "supervisor", "administrador"} and not selected_employee:
+        if role == "gerente":
+            scoped_teams = Team.objects.filter(company=company, manager=user)
+        elif role == "supervisor":
+            scoped_teams = Team.objects.filter(company=company, supervisor=user)
+            if not scoped_teams.exists():
+                scoped_teams = Team.objects.filter(company=company, memberships__user=user)
+        else:
+            scoped_teams = Team.objects.filter(company=company)
+        seller_names = TeamMembership.objects.filter(
+            team__in=scoped_teams, user__demo_identity__source_role="vendedor",
+            user__demo_identity__active_at_demo=True,
+        ).values_list("user__first_name", flat=True).distinct()
+        mentioned_sellers = {name.casefold() for name in seller_names if name.casefold() in question_tokens}
+    team_question = (
+        role in {"gerente", "supervisor", "administrador"} and not selected_employee
+        and (any(term in normalized for term in team_terms) or len(mentioned_sellers) > 1)
+    )
+    if not is_internal_data_request(question) and not (personal_scope and any(term in normalized for term in coaching_terms)) and not team_question:
+        return None
+
+    metrics = dashboard_summary(user, "funcionario" if personal_scope else role, company, start, end)
+    money_value = lambda value: f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    period_label = f"{start:%d/%m/%Y} a {end:%d/%m/%Y}"
+    items = [
+        {"label": "Vendido", "value": money_value(metrics["revenue"])},
+        {"label": "Meta", "value": money_value(metrics["goal"]), "detail": f"{metrics['goal_progress_percent']:.1f}% atingida"},
+        {"label": "Falta para a meta", "value": money_value(metrics["remaining"])},
+        {"label": "Vendas", "value": str(metrics["orders"])},
+        {"label": "Atendimentos", "value": str(metrics["attendances"])},
+        {"label": "Conversão", "value": f"{metrics['conversion_rate_percent']:.1f}%", "detail": "vendas ÷ atendimentos"},
+    ]
+    if personal_scope:
+        membership = TeamMembership.objects.filter(
+            user=user, team__company=company,
+        ).select_related("team").first()
+        if membership:
+            team_totals = Sale.objects.filter(
+                company=company, team=membership.team, status=Sale.Status.VALID,
+                sold_at__gte=start, sold_at__lte=end,
+            ).aggregate(orders=Sum("sales_count"), attendances=Sum("attendances"))
+            team_orders = team_totals["orders"] or 0
+            team_attendances = team_totals["attendances"] or 0
+            team_conversion = team_orders / team_attendances * 100 if team_attendances else 0
+            difference = metrics["conversion_rate_percent"] - team_conversion
+            items.append({
+                "label": "Conversão agregada da loja",
+                "value": f"{team_conversion:.1f}%",
+                "detail": f"diferença do perfil: {difference:+.1f} p.p.",
+            })
+            if metrics["goal"] and metrics["goal_progress_percent"] < 100 and difference < 0:
+                signal = (
+                    f"Sinal descritivo para investigar: atingimento em {metrics['goal_progress_percent']:.1f}% e conversão "
+                    f"{abs(difference):.1f} p.p. abaixo da conversão agregada da loja. Isso não identifica a causa; "
+                    "confirme escala, fluxo, estoque, tipo de atendimento e contexto com a pessoa."
+                )
+            else:
+                signal = "Os indicadores não mostram simultaneamente meta abaixo de 100% e conversão abaixo da loja. Isso não substitui uma conversa sobre contexto e necessidades de desenvolvimento."
+        else:
+            signal = "Não há loja associada suficiente para comparar o resultado com a equipe."
+    else:
+        signal = "Os valores são agregados para o escopo deste perfil; use a equipe para localizar recortes individuais."
+    evidence = {
+        "title": "Dados do período usados nesta resposta",
+        "period": period_label,
+        "items": items,
+        "signal": signal,
+        "scope": "individual e comparação com loja" if personal_scope else "agregado do perfil",
+    }
+    if team_question:
+        team_ids = scoped_teams.values_list("id", flat=True)
+        memberships = TeamMembership.objects.filter(
+            team_id__in=team_ids,
+            user__demo_identity__source_role="vendedor",
+            user__demo_identity__active_at_demo=True,
+        ).select_related("user", "team").order_by("team__name", "user__first_name", "user__last_name")
+        member_ids = memberships.values_list("user_id", flat=True)
+        sales_by_person = {
+            row["seller_id"]: row for row in Sale.objects.filter(
+                company=company, team_id__in=team_ids, seller_id__in=member_ids,
+                status=Sale.Status.VALID, sold_at__gte=start, sold_at__lte=end,
+            ).values("seller_id").annotate(
+                revenue=Sum("amount"), orders=Sum("sales_count"), attendances=Sum("attendances"),
+            )
+        }
+        goals_by_person = {
+            row["user_id"]: row["target_amount"] for row in Goal.objects.filter(
+                company=company, scope=Goal.Scope.USER, user_id__in=member_ids,
+                period_start__lte=end, period_end__gte=start,
+            ).values("user_id", "target_amount")
+        }
+        people = []
+        visited = set()
+        for membership in memberships:
+            person = membership.user
+            if person.id in visited:
+                continue
+            visited.add(person.id)
+            stats = sales_by_person.get(person.id, {})
+            revenue = stats.get("revenue") or Decimal("0")
+            orders = stats.get("orders") or 0
+            attendances = stats.get("attendances") or 0
+            goal = goals_by_person.get(person.id) or Decimal("0")
+            people.append({
+                "id": person.id,
+                "name": person.get_full_name(),
+                "team": membership.team.name,
+                "revenue": money_value(revenue),
+                "goal_progress": f"{revenue / goal * 100:.1f}%" if goal else "Sem meta",
+                "orders": orders,
+                "attendances": attendances,
+                "conversion": f"{orders / attendances * 100:.1f}%" if attendances else "Sem atendimentos",
+            })
+        mentioned_seller_ids = {
+            person.id for person in memberships if person.user.first_name.casefold() in mentioned_sellers
+        }
+        if len(mentioned_seller_ids) > 1:
+            people = [person for person in people if person["id"] in mentioned_seller_ids]
+        people.sort(key=lambda row: (sales_by_person.get(row["id"], {}).get("revenue") or Decimal("0"), row["name"]))
+        evidence["people"] = people[:3]
+        evidence["people_title"] = "Comparação das pessoas mencionadas" if len(mentioned_seller_ids) > 1 else "Menores faturamentos no escopo deste perfil"
+        evidence["signal"] = "O recorte identifica diferenças de faturamento no período. Diferença de resultado é um ponto para conversar e investigar, não prova de falha; confirme escala, fluxo, estoque e contexto antes de decidir um treinamento."
+    return evidence
+
+
 @api_view(["POST"])
 def assistant(request):
     role, user, company, error = demo_context(request)
@@ -577,7 +721,14 @@ def assistant(request):
         tokens = set(question.casefold().replace("?", " ").replace(",", " ").split())
         candidates = []
         seen_people = set()
-        for membership in TeamMembership.objects.filter(team__company=company).select_related("user"):
+        members = TeamMembership.objects.filter(
+            team__company=company,
+            user__demo_identity__source_role="vendedor",
+            user__demo_identity__active_at_demo=True,
+        ).select_related("user", "team")
+        if role == "gerente":
+            members = members.filter(team__manager=user)
+        for membership in members:
             person = membership.user
             if person.pk in seen_people:
                 continue
@@ -640,12 +791,18 @@ def assistant(request):
     sources = []
     target_role = "funcionario" if employee else role
     is_metric_or_record_query = is_internal_data_request(question)
+    evidence = _assistant_performance_evidence(
+        employee or user, target_role, company, start, end, question,
+        selected_employee=bool(employee),
+    )
+    team_ranking = bool(evidence and evidence.get("people"))
     generated = None
-    if not is_metric_or_record_query and settings.GEMINI_API_KEY:
+    if not is_metric_or_record_query and not team_ranking and settings.GEMINI_API_KEY:
         try:
             generated = generate_sales_guidance(
                 company, question, stage, sale=sale, user=employee or user, role=target_role,
                 history=previous_history,
+                performance_context=evidence,
             )
         except Exception as error:
             logger.exception("Falha ao gerar resposta Gemini com busca web automática.")
@@ -656,7 +813,20 @@ def assistant(request):
                 )
             }, status=502)
 
-    if generated:
+    if team_ranking:
+        lines = [
+            f"{index}. {person['name']} ({person['team']}): {person['revenue']} em vendas, "
+            f"{('sem meta individual cadastrada' if person['goal_progress'] == 'Sem meta' else person['goal_progress'] + ' da meta')}, {person['conversion']} de conversão "
+            f"({person['orders']} vendas / {person['attendances']} atendimentos)."
+            for index, person in enumerate(evidence["people"], start=1)
+        ]
+        if len(evidence["people"]) > 1 and evidence["people_title"] == "Comparação das pessoas mencionadas":
+            intro = f"Comparando as pessoas mencionadas no período de {evidence['period']}:\n"
+        else:
+            intro = f"Estes são os menores faturamentos no período de {evidence['period']}:\n"
+        answer = intro + "\n".join(lines) + "\nUse a diferença como ponto de investigação, não como diagnóstico de falha."
+        source_label = "dados internos agregados por vendedor e dia"
+    elif generated:
         answer = generated["answer"]
         sources = generated["sources"]
         source_label = "Gemini com busca automática e base comercial"
@@ -671,6 +841,7 @@ def assistant(request):
         role=ChatMessage.Role.ASSISTANT,
         content=answer,
         sources=sources,
+        evidence=evidence or {},
         used_web_search=bool(generated),
     )
     conversation.save(update_fields=["updated_at"])
@@ -689,10 +860,15 @@ def assistant(request):
         links.append({"label": f"Abrir venda #{sale.id}", "page": "vendas", "sale_id": sale.id})
     if employee:
         links.append({"label": f"Ver desempenho de {employee.first_name}", "page": "indicadores", "employee_id": employee.id})
+    elif evidence:
+        links.append({"label": "Abrir painel de indicadores", "page": "indicadores"})
+    if team_ranking:
+        for person in evidence["people"]:
+            links.append({"label": f"Ver painel de {person['name']}", "page": "indicadores", "employee_id": person["id"]})
     assistant_message = conversation.messages.filter(role=ChatMessage.Role.ASSISTANT).last()
     assistant_message.internal_links = links
     assistant_message.source_label = source_label
-    assistant_message.save(update_fields=["internal_links", "source_label"])
+    assistant_message.save(update_fields=["internal_links", "source_label", "evidence"])
     return Response({
         "answer": answer,
         "source": source_label,
@@ -703,6 +879,7 @@ def assistant(request):
         "message_id": assistant_message.id,
         "stage": stage,
         "links": links,
+        "evidence": evidence,
         "demo": True,
     })
 
@@ -766,7 +943,7 @@ def conversation_detail(request, conversation_id):
         "stage": chat.stage,
         "stage_label": chat.get_stage_display(),
         "messages": [
-            {"id": item.id, "role": item.role, "content": item.content, "sources": item.sources, "links": item.internal_links, "source": item.source_label, "used_web_search": item.used_web_search, "feedback": ({"rating": item.feedback.rating, "reason": item.feedback.reason} if hasattr(item, "feedback") else None), "created_at": item.created_at}
+            {"id": item.id, "role": item.role, "content": item.content, "sources": item.sources, "evidence": item.evidence, "links": item.internal_links, "source": item.source_label, "used_web_search": item.used_web_search, "feedback": ({"rating": item.feedback.rating, "reason": item.feedback.reason} if hasattr(item, "feedback") else None), "created_at": item.created_at}
             for item in chat.messages.all()
         ],
     })

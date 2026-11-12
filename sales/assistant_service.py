@@ -115,7 +115,7 @@ def specialization_context(company, sale=None, question=""):
     ]
 
 
-def generate_sales_guidance(company, question, stage, sale=None, user=None, role="funcionario", history=None):
+def generate_sales_guidance(company, question, stage, sale=None, user=None, role="funcionario", history=None, performance_context=None):
     """Generate concise sales coaching grounded in a small, relevant company context."""
     if not settings.GEMINI_API_KEY:
         return None
@@ -124,6 +124,19 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
     context_parts = []
     for article in articles[:1]:
         context_parts.append(f"Material relevante: {article.title}\n{article.content[:900]}")
+    if performance_context:
+        performance_lines = [
+            f"Período: {performance_context.get('period', 'não informado')}; escopo: {performance_context.get('scope', 'não informado')}.",
+            *[f"{item['label']}: {item['value']}" for item in performance_context.get("items", [])],
+        ]
+        for person in performance_context.get("people", []):
+            performance_lines.append(
+                f"Pessoa no recorte: {person['name']} ({person['team']}), vendas {person['revenue']}, "
+                f"meta {person['goal_progress']}, conversão {person['conversion']} "
+                f"({person['orders']} vendas / {person['attendances']} atendimentos)."
+            )
+        performance_lines.append(f"Leitura cautelosa: {performance_context.get('signal', '')}")
+        context_parts.append("Indicadores calculados pelo backend para este perfil e período:\n" + "\n".join(performance_lines))
     for profile in profiles[:1]:
         context_parts.append(
             f"Especialização: {profile['title']} ({profile['category']})\n"
@@ -170,6 +183,7 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
         "Use o material fornecido como fonte da verdade. Não invente preço, recurso, compatibilidade, prazo ou política. "
         "Quando a pergunta pedir pesquisa científica, use a busca disponível, cite fontes publicadas e separe evidência externa dos dados da empresa. "
         "Diferencie cálculo descritivo, associação, hipótese e causalidade; não diga que uma prática ou este software causou resultado sem evidência experimental apropriada. "
+        "Quando receber indicadores calculados pelo backend, use-os como evidência numérica somente se forem relevantes à pergunta; explicite o período e o escopo, mostre a comparação disponível e nunca trate uma diferença como diagnóstico da causa ou falha pessoal. "
         "A base Rede Aurora é fictícia e não contém produtos por transação, motivos de cancelamento ou observações de conversas reais. "
         "Se faltar informação, diga isso e indique exatamente o que confirmar. Para situações com clientes, trate pressa e perfil "
         "como contexto momentâneo, não como característica fixa. Dê um exemplo de fala quando ajudar, adaptado ao pedido; "

@@ -35,6 +35,7 @@ class Command(BaseCommand):
                     "regional_manager_name", "franchisee", "store_type", "opened_at", "opens_sunday",
                 )),
                 (Sale, ("sales_count", "pieces", "attendances")),
+                (ChatMessage, ("evidence",)),
             ):
                 if model._meta.db_table not in tables:
                     continue

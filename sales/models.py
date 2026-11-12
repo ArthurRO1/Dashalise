@@ -265,6 +265,7 @@ class ChatMessage(models.Model):
     role = models.CharField(max_length=12, choices=Role.choices)
     content = models.TextField()
     sources = models.JSONField(default=list, blank=True)
+    evidence = models.JSONField(default=dict, blank=True)
     internal_links = models.JSONField(default=list, blank=True)
     source_label = models.CharField(max_length=80, blank=True)
     used_web_search = models.BooleanField(default=False)

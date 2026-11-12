@@ -117,6 +117,18 @@ button { cursor: pointer; }
 .app-link-button { padding: 5px 7px; border: 1px solid #e5e2fa; border-radius: 7px; background: #faf9ff; color: #5b50bf; font-size: 8px; cursor: pointer; }
 .app-link-button:hover { background: #f0edff; }
 .message-meta { margin: 5px 0 0 34px; color: #9a9dac; font-size: 8px; }
+.message-evidence { max-width: min(650px, 88%); margin: 8px 0 0 34px; padding: 10px; border: 1px solid #ded7ff; border-radius: 12px; background: linear-gradient(145deg, #fbfaff, #f4f0ff); box-shadow: 0 5px 16px #3620750b; }
+.message-evidence-heading { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 8px; color: #35235f; font-size: 10px; }
+.message-evidence-heading span { color: #858197; font-size: 8px; }
+.message-evidence-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 6px; }
+.message-evidence-metric { min-width: 0; padding: 7px; border: 1px solid #ece8fb; border-radius: 8px; background: #fff; }
+.message-evidence-metric span, .message-evidence-metric small { display: block; color: #747187; font-size: 8px; line-height: 1.4; }
+.message-evidence-metric strong { display: block; margin: 2px 0; color: #39256d; font-size: 11px; }
+.message-evidence-signal { margin: 8px 0 0; color: #514a68; font-size: 9px; line-height: 1.5; }
+.message-evidence-people-title { display: block; margin-top: 9px; color: #35235f; font-size: 9px; }
+.message-evidence-person { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #ebe7f7; color: #514a68; font-size: 8px; line-height: 1.4; }
+.message-evidence-person:last-child { border-bottom: 0; }
+.message-evidence-person button { flex: 0 0 auto; padding: 4px 7px; border: 1px solid #d8cdf8; border-radius: 7px; background: #fff; color: #4e2ea3; font-size: 8px; cursor: pointer; }
 .composer { position: relative; z-index: 2; min-height: 88px; flex: 0 0 auto; margin: 0 14px 10px; padding: 9px 68px 7px 42px; border: 1px solid #dcd5ff; border-radius: 18px; background: rgb(255 255 255 / 95%); box-shadow: 0 9px 24px #6b47d31b, inset 0 1px #fff; }
 .composer::before { position: absolute; z-index: 0; top: 16px; left: 25px; color: #9856ff; content: "✦"; font-size: 20px; pointer-events: none; }
 .composer:focus-within { border-color: #ac92ff; box-shadow: 0 0 0 4px #7c3aed18, 0 10px 24px #6d28d933; }
@@ -288,6 +300,7 @@ td strong { color: var(--ink); }
 .floating-header button + button { margin-left: 0; }
 .floating-messages { display: flex; flex: 1; flex-direction: column; gap: 8px; overflow-y: auto; padding: 11px; }
 .floating-messages .message-row .message-bubble { font-size: 9px; }
+.floating-messages .message-evidence { max-width: min(650px, 92%); }
 .floating-composer { display: flex; gap: 6px; padding: 8px; border-top: 1px solid #eceef3; }
 .floating-composer input { min-width: 0; flex: 1; padding: 8px; border: 1px solid #e5e7ee; border-radius: 7px; outline-color: #c7c1ff; font-size: 9px; }
 .floating-composer button { width: 29px; border: 0; border-radius: 7px; background: var(--purple); color: white; }

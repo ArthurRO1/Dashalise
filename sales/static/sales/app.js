@@ -141,6 +141,68 @@ function renderMessage(message, appendTo) {
   row.append(bubble);
   appendTo.append(row);
 
+  if (message.role !== "user" && message.evidence?.items?.length) {
+    const card = document.createElement("section");
+    card.className = "message-evidence";
+    const heading = document.createElement("div");
+    heading.className = "message-evidence-heading";
+    const title = document.createElement("strong");
+    title.textContent = message.evidence.title || "Indicadores relacionados";
+    const period = document.createElement("span");
+    period.textContent = message.evidence.period || "";
+    heading.append(title, period);
+    const grid = document.createElement("div");
+    grid.className = "message-evidence-grid";
+    message.evidence.items.forEach((item) => {
+      const metric = document.createElement("div");
+      metric.className = "message-evidence-metric";
+      const label = document.createElement("span");
+      label.textContent = item.label;
+      const value = document.createElement("strong");
+      value.textContent = item.value;
+      metric.append(label, value);
+      if (item.detail) {
+        const detail = document.createElement("small");
+        detail.textContent = item.detail;
+        metric.append(detail);
+      }
+      grid.append(metric);
+    });
+    card.append(heading, grid);
+    if (message.evidence.people?.length) {
+      const peopleHeading = document.createElement("strong");
+      peopleHeading.className = "message-evidence-people-title";
+      peopleHeading.textContent = message.evidence.people_title || "Pessoas no recorte";
+      card.append(peopleHeading);
+      message.evidence.people.forEach((person) => {
+        const personRow = document.createElement("div");
+        personRow.className = "message-evidence-person";
+        const description = document.createElement("span");
+        const goalLabel = person.goal_progress === "Sem meta" ? "sem meta individual" : `${person.goal_progress} da meta`;
+        description.textContent = `${person.name} · ${person.team} · ${person.revenue} · ${goalLabel} · ${person.conversion} (${person.orders}/${person.attendances} atendimentos)`;
+        const open = document.createElement("button");
+        open.type = "button";
+        open.textContent = "Abrir painel";
+        open.addEventListener("click", async () => {
+          const employee = state.people.find((candidate) => candidate.id === person.id) || person;
+          selectEmployee(employee);
+          navigate("indicadores");
+          await refreshData();
+          if (state.activeConversationId) openFloating(true);
+        });
+        personRow.append(description, open);
+        card.append(personRow);
+      });
+    }
+    if (message.evidence.signal) {
+      const signal = document.createElement("p");
+      signal.className = "message-evidence-signal";
+      signal.textContent = message.evidence.signal;
+      card.append(signal);
+    }
+    appendTo.append(card);
+  }
+
   if (message.role !== "user" && message.sources?.length) {
     const sources = document.createElement("div");
     sources.className = "message-sources";
@@ -337,6 +399,7 @@ async function sendQuestion(question, fromFloating = false) {
       role: "assistant",
       content: response.answer,
       sources: response.sources || [],
+      evidence: response.evidence || null,
       source: response.source,
       links: response.links || [],
       used_web_search: response.used_web_search,
@@ -509,7 +572,7 @@ async function renderTeamsPage() {
           const goal = members.reduce((sum, person) => sum + Number(person.goal || 0), 0);
           const orders = members.reduce((sum, person) => sum + Number(person.orders || 0), 0);
           const progress = goal ? revenue / goal * 100 : 0;
-          const cards = visible.map((person) => `<button class="person-card" type="button" data-open-employee="${person.id}"><span class="person-avatar">${escapeHtml(person.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</span><span class="person-info"><strong>${escapeHtml(person.name)}</strong><small>${person.orders} vendas no período · conversão ${percent.format(Number(person.conversion_rate_percent || 0))}%</small><span class="person-progress"><i style="width:${Math.min(100, Number(person.goal_progress_percent || 0))}%"></i></span></span><span class="person-result"><strong>${money.format(Number(person.revenue || 0))}</strong><small>${person.goal ? `${percent.format(Number(person.goal_progress_percent || 0))}% da meta` : "Sem meta individual"}</small></span><span class="person-open">Ver painel ↗</span></button>`).join("");
+          const cards = visible.map((person) => `<button class="person-card" type="button" data-open-employee="${person.id}"><span class="person-avatar">${escapeHtml(person.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</span><span class="person-info"><strong>${escapeHtml(person.name)}</strong><small>${person.orders} vendas ÷ ${person.attendances} atendimentos · conversão ${percent.format(Number(person.conversion_rate_percent || 0))}%</small><span class="person-progress"><i style="width:${Math.min(100, Number(person.goal_progress_percent || 0))}%"></i></span></span><span class="person-result"><strong>${money.format(Number(person.revenue || 0))}</strong><small>${person.goal ? `${percent.format(Number(person.goal_progress_percent || 0))}% da meta` : "Sem meta individual"}</small></span><span class="person-open">Ver painel ↗</span></button>`).join("");
           return `<section class="team-performance-group"><header><div><strong>${escapeHtml(teamName)}</strong><small>${members.length} ${members.length === 1 ? "vendedor" : "vendedores"} · ${orders} vendas válidas</small></div><div class="team-performance-total"><strong>${money.format(revenue)}</strong><small>${goal ? `${percent.format(progress)}% da meta somada` : "Sem metas individuais"}</small></div></header>${cards}</section>`;
         }).join("");
         peopleList.innerHTML = groups || '<p class="empty-state">Nenhuma pessoa ou equipe corresponde à busca.</p>';
