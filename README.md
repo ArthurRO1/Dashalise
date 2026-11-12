@@ -1,8 +1,10 @@
 # Dashalise · Inteligência Comercial
 
-Demonstração de uma plataforma de análise de vendas construída com **Django, Django REST Framework, SQLite, HTML, CSS e JavaScript**. A seleção de perfil dispensa login durante apresentações e consulta APIs ligadas ao banco local.
+Demonstração do **Desafio 2 — O número certo, onde a pessoa já está**, do Programa de Estágio FullStore. A aplicação apresenta painéis de vendas personalizados e um assistente comercial com IA, construída com **Django, Django REST Framework, SQLite, HTML, CSS e JavaScript**.
 
-> Todos os nomes, valores e registros são fictícios. A troca de perfil por cabeçalho é um recurso de apresentação, não um controle de acesso seguro para produção.
+> Todos os nomes, valores e registros usados na demonstração são fictícios. A troca de perfil dispensa login para facilitar a apresentação e não representa autenticação segura para produção.
+
+O briefing original, as regras do desafio e os dados fornecidos pela organização estão preservados neste repositório, em `BRIEFING.md` e `dados/`. Consulte também os arquivos `LEIAME.md` dentro de cada desafio.
 
 ## Executar localmente
 
@@ -65,12 +67,15 @@ sales/data/           exemplos de referência para respostas comerciais
 sales/templates/      template HTML identado
 sales/static/sales/   CSS e JavaScript da interface
 requirements.txt      Django, Django REST Framework, SDK Gemini e Langfuse opcional
+dados/                briefing e bases fictícias fornecidas para os quatro desafios
+apresentacao/         espaço para materiais de apresentação e vídeo
+prompts/              histórico de prompts usados no desenvolvimento
+DIARIO.md             diário de decisões e aprendizados do participante
 ```
 
 ## Rotas principais
 
-As rotas de dados usam `X-Demo-Role` com `funcionario`, `supervisor`, `gerente` ou `administrador`.
-Gerente e administrador podem incluir `?employee_id=<id>` em dashboard, vendas, produtos e alertas para consultar o recorte individual daquele vendedor, validado pela associação à empresa.
+As rotas de dados usam `X-Demo-Role` com `funcionario`, `supervisor`, `gerente` ou `administrador`. Gerente e administrador podem incluir `?employee_id=<id>` em dashboard, vendas, produtos e alertas para consultar o recorte individual daquele vendedor, validado pela associação à empresa.
 
 | Rota | Uso |
 | --- | --- |
@@ -97,4 +102,4 @@ O banco relacional cobre empresas, equipes, membros, produtos, especializações
 
 Esta versão é uma demonstração. Para produção, troque a seleção de perfil por autenticação e autorização reais, isole as empresas no servidor, use PostgreSQL e segredos por ambiente, revise LGPD/retensão, adicione testes, migrações versionadas, limites de uso e observabilidade. A pesquisa web usa grounding do Google e pode gerar custos conforme os termos e preços do Google.
 
-No PowerShell, defina a variável para esta sessão antes de iniciar o Django: ` $env:GEMINI_API_KEY = 'sua-chave' `. Não salve chaves no repositório.
+No PowerShell, defina a variável para esta sessão antes de iniciar o Django: `$env:GEMINI_API_KEY = 'sua-chave'`. Não salve chaves no repositório.

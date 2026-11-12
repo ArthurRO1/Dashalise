@@ -1,0 +1,121 @@
+loja_id,nome,cidade,uf,regional_id,regional,gerente_regional,franqueado,tipo,gerente_loja,inauguracao,abre_domingo
+L001,Aurora Shopping Ipê,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Loja própria (franqueadora),shopping,Eduardo Machado,2014-01-30,sim
+L002,Aurora Shopping Vila Nova,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Caio Barbosa,shopping,Paulo Mendes,2019-06-15,sim
+L003,Aurora Shopping Bela Vista,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Lívia Siqueira,shopping,Larissa Ribeiro,2017-07-08,sim
+L004,Aurora Shopping Centro,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Carla Menezes,shopping,Diego Furtado,2016-04-12,sim
+L005,Aurora Shopping Jardim Sul,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Lívia Siqueira,shopping,Thaís Prado,2015-08-04,sim
+L006,Aurora Shopping Paineiras,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,André Martins,shopping,Francine Monteiro,2023-06-27,sim
+L007,Aurora Shopping Primavera,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,André Martins,shopping,Débora Fernandes,2023-12-15,sim
+L008,Aurora Shopping Horizonte,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Daniela Mendes,shopping,Sofia Cavalcanti,2023-03-18,sim
+L009,Aurora Shopping Estação,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Lívia Siqueira,shopping,Débora Ferreira,2024-03-01,sim
+L010,Aurora Shopping Mirante,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Luana Castro,shopping,Lorena Castro,2024-11-16,sim
+L011,Aurora Shopping Norte,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Carla Menezes,shopping,Cláudia Souza,2018-09-20,sim
+L012,Aurora Shopping Alameda,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,André Martins,shopping,Camila Ribeiro,2013-04-23,sim
+L013,Aurora Shopping Colinas,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,André Martins,shopping,Vitor Cavalcanti,2013-04-16,sim
+L014,Aurora Shopping Bosque,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Laura Ferreira,shopping,Lorena Leal,2016-04-08,sim
+L015,Aurora Shopping Aeroporto,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Caio Barbosa,shopping,Wesley Moura,2024-06-09,sim
+L016,Aurora Moema (rua),São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Lívia Siqueira,rua,Lorena Bezerra,2015-04-10,não
+L017,Aurora Pinheiros (rua),São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Carla Menezes,rua,Adriana Fontes,2020-02-10,não
+L018,Aurora Shopping Parque Leste,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,André Martins,shopping,Larissa Rodrigues,2015-07-17,sim
+L019,Aurora Tatuapé (rua),São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Daniela Mendes,rua,Kelly Sampaio,2024-06-24,não
+L020,Aurora Shopping Lagoa,São Paulo,SP,R1,São Paulo Capital,Patrícia Lemos,Laura Ferreira,shopping,Thaís Farias,2026-07-15,sim
+L021,Aurora Santo André Shopping Aeroporto,Santo André,SP,R2,Grande SP e Litoral,Priscila Fernandes,Sofia Cardoso,shopping,Letícia Siqueira,2021-03-18,sim
+L022,Aurora São Bernardo do Campo Shopping Ipê,São Bernardo do Campo,SP,R2,Grande SP e Litoral,Priscila Fernandes,Sofia Cardoso,shopping,Luíza Souza,2024-03-15,sim
+L023,Aurora Barueri Shopping Parque,Barueri,SP,R2,Grande SP e Litoral,Priscila Fernandes,Cláudia Ferreira,shopping,André Cavalcanti,2023-10-19,sim
+L024,Aurora Praia Grande Shopping Colinas,Praia Grande,SP,R2,Grande SP e Litoral,Priscila Fernandes,Caio Melo,shopping,Ricardo Pinto,2016-06-07,sim
+L025,Aurora Santos Shopping Horizonte,Santos,SP,R2,Grande SP e Litoral,Priscila Fernandes,Caio Melo,shopping,Cláudia Silva,2018-09-28,sim
+L026,Aurora Mogi das Cruzes Shopping Horizonte,Mogi das Cruzes,SP,R2,Grande SP e Litoral,Priscila Fernandes,Caio Melo,shopping,Kelly Machado,2021-07-27,sim
+L027,Aurora Guarulhos Shopping Primavera,Guarulhos,SP,R2,Grande SP e Litoral,Priscila Fernandes,Priscila Lima,shopping,Valéria Silva,2013-08-09,sim
+L028,Aurora Mogi das Cruzes Shopping Estação,Mogi das Cruzes,SP,R2,Grande SP e Litoral,Priscila Fernandes,Priscila Lima,shopping,Érica Lopes,2013-11-17,sim
+L029,Aurora Santos Centro (rua),Santos,SP,R2,Grande SP e Litoral,Priscila Fernandes,Cláudia Ferreira,rua,Laura Reis,2021-03-08,não
+L030,Aurora Guarulhos Shopping Oeste,Guarulhos,SP,R2,Grande SP e Litoral,Priscila Fernandes,Sofia Cardoso,shopping,Alice Santos,2016-12-28,sim
+L031,Aurora Barueri Shopping Colinas,Barueri,SP,R2,Grande SP e Litoral,Priscila Fernandes,Priscila Lima,shopping,Gabriel Barbosa,2021-02-28,sim
+L032,Aurora Mogi das Cruzes Shopping Vila Nova,Mogi das Cruzes,SP,R2,Grande SP e Litoral,Priscila Fernandes,Leonardo Lima,shopping,Eduarda Azevedo,2013-12-17,sim
+L033,Aurora Santos Shopping Bela Vista,Santos,SP,R2,Grande SP e Litoral,Priscila Fernandes,Loja própria (franqueadora),shopping,Leonardo Carvalho,2024-05-12,sim
+L034,Aurora São Bernardo do Campo Shopping Ponte Alta,São Bernardo do Campo,SP,R2,Grande SP e Litoral,Priscila Fernandes,Loja própria (franqueadora),shopping,Douglas Teixeira,2017-04-07,sim
+L035,Aurora Santo André Shopping Leste,Santo André,SP,R2,Grande SP e Litoral,Priscila Fernandes,Cláudia Ferreira,shopping,Mateus Monteiro,2026-01-14,sim
+L036,Aurora Guarulhos Centro (rua),Guarulhos,SP,R2,Grande SP e Litoral,Priscila Fernandes,Leonardo Lima,rua,Gabriel Melo,2023-12-13,não
+L037,Aurora Mogi das Cruzes Shopping Paineiras,Mogi das Cruzes,SP,R2,Grande SP e Litoral,Priscila Fernandes,Sofia Cardoso,shopping,Priscila Lopes,2012-04-26,sim
+L038,Aurora Osasco Shopping Oeste,Osasco,SP,R2,Grande SP e Litoral,Priscila Fernandes,Sofia Cardoso,shopping,Clara Xavier,2022-07-31,sim
+L039,Aurora Barueri Shopping Bela Vista,Barueri,SP,R2,Grande SP e Litoral,Priscila Fernandes,Leonardo Lima,shopping,Viviane Prado,2013-12-23,sim
+L040,Aurora Praia Grande Shopping Mirante,Praia Grande,SP,R2,Grande SP e Litoral,Priscila Fernandes,Caio Melo,shopping,Mayara Nascimento,2013-12-01,sim
+L041,Aurora Sorocaba Shopping Alameda,Sorocaba,SP,R3,Interior de SP,Stefany Andrade,Murilo Reis,shopping,Isabela Pereira,2015-02-13,sim
+L042,Aurora São José do Rio Preto Shopping Vale Verde,São José do Rio Preto,SP,R3,Interior de SP,Stefany Andrade,Caio Teixeira,shopping,Sérgio Santos,2013-08-21,sim
+L043,Aurora São José dos Campos Shopping Mirante,São José dos Campos,SP,R3,Interior de SP,Stefany Andrade,Lívia Melo,shopping,Eduardo Moura,2021-05-28,sim
+L044,Aurora Campinas Centro (rua),Campinas,SP,R3,Interior de SP,Stefany Andrade,Helena Queiroz,rua,Carolina Ferreira,2019-01-06,não
+L045,Aurora São José do Rio Preto Shopping Vila Nova,São José do Rio Preto,SP,R3,Interior de SP,Stefany Andrade,Loja própria (franqueadora),shopping,Rafaela Leal,2023-03-23,sim
+L046,Aurora Piracicaba Shopping Paineiras,Piracicaba,SP,R3,Interior de SP,Stefany Andrade,Caio Teixeira,shopping,Luíza Gomes,2016-02-27,sim
+L047,Aurora Bauru Shopping Primavera,Bauru,SP,R3,Interior de SP,Stefany Andrade,Helena Queiroz,shopping,Fabiana Silva,2018-02-18,sim
+L048,Aurora Piracicaba Shopping Ipê,Piracicaba,SP,R3,Interior de SP,Stefany Andrade,Murilo Reis,shopping,Vitor Sampaio,2020-11-07,sim
+L049,Aurora São José do Rio Preto Shopping Estação,São José do Rio Preto,SP,R3,Interior de SP,Stefany Andrade,Pâmela Leal,shopping,Tamires Tavares,2025-01-11,sim
+L050,Aurora São José dos Campos Shopping Estação,São José dos Campos,SP,R3,Interior de SP,Stefany Andrade,Murilo Reis,shopping,Helena Araújo,2024-06-11,sim
+L051,Aurora Bauru Shopping Ponte Alta,Bauru,SP,R3,Interior de SP,Stefany Andrade,Helena Queiroz,shopping,Lorena Barbosa,2026-02-23,sim
+L052,Aurora Ribeirão Preto Centro (rua),Ribeirão Preto,SP,R3,Interior de SP,Stefany Andrade,Caio Teixeira,rua,Luana Leal,2018-10-27,não
+L053,Aurora Bauru Shopping Lagoa,Bauru,SP,R3,Interior de SP,Stefany Andrade,Caio Teixeira,shopping,Vitória Mendes,2016-07-28,sim
+L054,Aurora Campinas Shopping Cidade Nova,Campinas,SP,R3,Interior de SP,Stefany Andrade,Helena Queiroz,shopping,Samuel Castro,2012-11-03,sim
+L055,Aurora Campinas Shopping Oeste,Campinas,SP,R3,Interior de SP,Stefany Andrade,Loja própria (franqueadora),shopping,Joana Lima,2021-01-07,sim
+L056,Aurora Bauru Shopping Colinas,Bauru,SP,R3,Interior de SP,Stefany Andrade,Murilo Reis,shopping,Olívia Moura,2017-03-05,sim
+L057,Aurora Ribeirão Preto Shopping Cidade Nova,Ribeirão Preto,SP,R3,Interior de SP,Stefany Andrade,Caio Teixeira,shopping,Luíza Silva,2023-05-25,sim
+L058,Aurora Jundiaí Shopping Ponte Alta,Jundiaí,SP,R3,Interior de SP,Stefany Andrade,Pâmela Leal,shopping,Sérgio Lima,2016-08-06,sim
+L059,Aurora São José do Rio Preto Shopping Mirante,São José do Rio Preto,SP,R3,Interior de SP,Stefany Andrade,Thaís Pinto,shopping,Camila Silva,2013-04-08,sim
+L060,Aurora Campinas Shopping Vale Verde,Campinas,SP,R3,Interior de SP,Stefany Andrade,Murilo Reis,shopping,Alessandra Farias,2024-09-05,sim
+L061,Aurora Rio de Janeiro Shopping Alameda,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Thiago Cardoso,shopping,Luíza Cardoso,2026-03-24,sim
+L062,Aurora Petrópolis Shopping Vila Nova,Petrópolis,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Loja própria (franqueadora),shopping,Flávia Nascimento,2012-07-27,sim
+L063,Aurora Vitória Shopping Vila Nova,Vitória,ES,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Ingrid Teixeira,shopping,Manuela Almeida,2026-02-16,sim
+L064,Aurora Rio de Janeiro Shopping Colinas,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Ingrid Teixeira,shopping,Jéssica Tavares,2023-01-04,sim
+L065,Aurora Petrópolis Shopping Colinas,Petrópolis,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Rafael Mendes,shopping,Otávio Batista,2012-09-06,sim
+L066,Aurora Nova Iguaçu Shopping Horizonte,Nova Iguaçu,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Alan Santos,shopping,Mayara Carvalho,2020-02-09,sim
+L067,Aurora Rio de Janeiro Shopping Vila Nova,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Giovana Vieira,shopping,Cíntia Brito,2026-03-17,sim
+L068,Aurora Duque de Caxias Shopping Jardim Sul,Duque de Caxias,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Sofia Farias,shopping,Helena Rodrigues,2017-10-08,sim
+L069,Aurora Rio de Janeiro Shopping Leste,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Ricardo Tavares,shopping,Felipe Oliveira,2018-09-19,sim
+L070,Aurora Petrópolis Shopping Paineiras,Petrópolis,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Rafael Mendes,shopping,Sofia Correia,2016-09-29,sim
+L071,Aurora Rio de Janeiro Shopping Ipê,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Sofia Farias,shopping,Joana Prado,2018-03-12,sim
+L072,Aurora Niterói Shopping Parque,Niterói,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Ingrid Teixeira,shopping,Valéria Carvalho,2022-10-30,sim
+L073,Aurora Rio de Janeiro Shopping Horizonte,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Rafael Mendes,shopping,Sara Martins,2024-10-13,sim
+L074,Aurora Petrópolis Shopping Mirante,Petrópolis,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Ricardo Tavares,shopping,Simone Teixeira,2018-09-14,sim
+L075,Aurora Duque de Caxias Shopping Aeroporto,Duque de Caxias,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Giovana Vieira,shopping,Raquel Prado,2025-02-16,sim
+L076,Aurora Rio de Janeiro Shopping Primavera,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Sofia Farias,shopping,Flávia Andrade,2026-05-13,sim
+L077,Aurora Niterói Shopping Bosque,Niterói,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Ricardo Tavares,shopping,Danilo Fontes,2026-07-12,sim
+L078,Aurora Niterói Shopping Vale Verde,Niterói,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Giovana Vieira,shopping,Raquel Lopes,2025-05-26,sim
+L079,Aurora Niterói Shopping Paineiras,Niterói,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Alan Santos,shopping,Vitor Correia,2023-06-14,sim
+L080,Aurora Duque de Caxias Shopping Vila Nova,Duque de Caxias,RJ,R4,Rio de Janeiro e Espírito Santo,Caio Ramos,Ingrid Teixeira,shopping,Simone Ribeiro,2017-06-06,sim
+L081,Aurora Juiz de Fora Shopping Estação,Juiz de Fora,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Eduardo Fernandes,shopping,Douglas Brito,2013-02-24,sim
+L082,Aurora Goiânia Shopping Parque,Goiânia,GO,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Alice Peixoto,shopping,Natália Queiroz,2016-04-09,sim
+L083,Aurora Brasília Shopping Mirante,Brasília,DF,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Helena Andrade,shopping,Adriana Souza,2014-08-30,sim
+L084,Aurora Brasília Shopping Horizonte,Brasília,DF,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Cíntia Batista,shopping,Fabiana Tavares,2016-10-19,sim
+L085,Aurora Uberlândia Shopping Bosque,Uberlândia,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Leonardo Ribeiro,shopping,Milena Fontes,2013-05-06,sim
+L086,Aurora Belo Horizonte Shopping Vila Nova,Belo Horizonte,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Eduardo Fernandes,shopping,João Rezende,2016-04-19,sim
+L087,Aurora Uberlândia Centro (rua),Uberlândia,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Leonardo Ribeiro,rua,Sérgio Farias,2020-03-15,não
+L088,Aurora Contagem Shopping Bosque,Contagem,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Alice Peixoto,shopping,Lorena Batista,2024-10-25,sim
+L089,Aurora Contagem Shopping Horizonte,Contagem,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Loja própria (franqueadora),shopping,Fábio Tavares,2015-03-07,sim
+L090,Aurora Uberlândia Shopping Primavera,Uberlândia,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Letícia Dias,shopping,Graziela Almeida,2012-11-06,sim
+L091,Aurora Belo Horizonte Shopping Horizonte,Belo Horizonte,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Cíntia Batista,shopping,Sofia Queiroz,2023-02-15,sim
+L092,Aurora Campo Grande Centro (rua),Campo Grande,MS,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Eduardo Fernandes,rua,Caio Pacheco,2015-03-16,não
+L093,Aurora Campo Grande Shopping Vila Nova,Campo Grande,MS,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Letícia Dias,shopping,Bruno Viana,2021-10-28,sim
+L094,Aurora Campo Grande Shopping Horizonte,Campo Grande,MS,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Leonardo Ribeiro,shopping,Caio Farias,2018-07-20,sim
+L095,Aurora Belo Horizonte Shopping Mirante,Belo Horizonte,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Alice Peixoto,shopping,Cecília Souza,2016-06-29,sim
+L096,Aurora Contagem Shopping Colinas,Contagem,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Leonardo Ribeiro,shopping,Stefany Rodrigues,2012-08-09,sim
+L097,Aurora Brasília Shopping Ipê,Brasília,DF,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Thaís Rezende,shopping,Caio Tavares,2020-03-25,sim
+L098,Aurora Uberlândia Shopping Vila Nova,Uberlândia,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Douglas Pinto,shopping,Pâmela Teixeira,2024-01-13,sim
+L099,Aurora Cuiabá Shopping Ponte Alta,Cuiabá,MT,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Letícia Dias,shopping,Aline Leal,2013-09-02,sim
+L100,Aurora Belo Horizonte Shopping Bela Vista,Belo Horizonte,MG,R5,Minas Gerais e Centro-Oeste,Rafaela Melo,Cíntia Batista,shopping,Aline Costa,2016-08-14,sim
+L101,Aurora Blumenau Shopping Colinas,Blumenau,SC,R6,Sul,Mayara Machado,Douglas Silva,shopping,Raquel Almeida,2022-09-10,sim
+L102,Aurora Florianópolis Shopping Cidade Nova,Florianópolis,SC,R6,Sul,Mayara Machado,Luíza Moura,shopping,André Ferreira,2013-04-29,sim
+L103,Aurora Blumenau Shopping Oeste,Blumenau,SC,R6,Sul,Mayara Machado,Gustavo Castro,shopping,Otávio Carvalho,2014-07-10,sim
+L104,Aurora Caxias do Sul Shopping Vila Nova,Caxias do Sul,RS,R6,Sul,Mayara Machado,Loja própria (franqueadora),shopping,Danilo Pinto,2014-08-03,sim
+L105,Aurora Blumenau Shopping Aeroporto,Blumenau,SC,R6,Sul,Mayara Machado,Ingrid Moura,shopping,Henrique Ramos,2016-07-08,sim
+L106,Aurora Curitiba Shopping Ipê,Curitiba,PR,R6,Sul,Mayara Machado,Loja própria (franqueadora),shopping,Gisele Monteiro,2021-03-09,sim
+L107,Aurora Curitiba Shopping Paineiras,Curitiba,PR,R6,Sul,Mayara Machado,Rafael Batista,shopping,Michele Queiroz,2017-02-26,sim
+L108,Aurora Maringá Shopping Leste,Maringá,PR,R6,Sul,Mayara Machado,Rosana Moura,shopping,Jéssica Oliveira,2021-09-04,sim
+L109,Aurora Blumenau Centro (rua),Blumenau,SC,R6,Sul,Mayara Machado,Loja própria (franqueadora),rua,Sofia Martins,2019-10-21,não
+L110,Aurora Florianópolis Shopping Paineiras,Florianópolis,SC,R6,Sul,Mayara Machado,Ingrid Moura,shopping,Renan Gomes,2018-02-26,sim
+L111,Aurora Curitiba Shopping Oeste,Curitiba,PR,R6,Sul,Mayara Machado,Lorena Farias,shopping,Douglas Mendes,2023-06-03,sim
+L112,Aurora Blumenau Shopping Horizonte,Blumenau,SC,R6,Sul,Mayara Machado,Loja própria (franqueadora),shopping,Elaine Melo,2015-11-28,sim
+L113,Aurora Blumenau Shopping Bosque,Blumenau,SC,R6,Sul,Mayara Machado,Loja própria (franqueadora),shopping,Otávio Pacheco,2021-07-27,sim
+L114,Aurora Porto Alegre Shopping Alameda,Porto Alegre,RS,R6,Sul,Mayara Machado,Ricardo Farias,shopping,Priscila Araújo,2016-01-10,sim
+L115,Aurora Joinville Centro (rua),Joinville,SC,R6,Sul,Mayara Machado,Gustavo Castro,rua,Érica Sampaio,2017-08-12,não
+L116,Aurora Maringá Shopping Ipê,Maringá,PR,R6,Sul,Mayara Machado,Vinícius Mendes,shopping,Eduardo Lima,2024-11-02,sim
+L117,Aurora Curitiba Shopping Cidade Nova,Curitiba,PR,R6,Sul,Mayara Machado,Gustavo Castro,shopping,Mayara Lima,2021-05-02,sim
+L118,Aurora Blumenau Shopping Mirante,Blumenau,SC,R6,Sul,Mayara Machado,Ricardo Farias,shopping,Heloísa Peixoto,2024-09-25,sim
+L119,Aurora Curitiba Shopping Primavera,Curitiba,PR,R6,Sul,Mayara Machado,Rosana Moura,shopping,Felipe Mendes,2025-01-10,sim
+L120,Aurora Curitiba Shopping Vila Nova,Curitiba,PR,R6,Sul,Mayara Machado,Vinícius Mendes,shopping,Ingrid Carvalho,2015-03-04,sim

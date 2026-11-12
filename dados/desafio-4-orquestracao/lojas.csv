@@ -1,0 +1,121 @@
+loja_id,nome,cidade,uf,regional_id,regional,tipo
+L001,Aurora Shopping Ipê,São Paulo,SP,R1,São Paulo Capital,shopping
+L002,Aurora Shopping Vila Nova,São Paulo,SP,R1,São Paulo Capital,shopping
+L003,Aurora Shopping Bela Vista,São Paulo,SP,R1,São Paulo Capital,shopping
+L004,Aurora Shopping Centro,São Paulo,SP,R1,São Paulo Capital,shopping
+L005,Aurora Shopping Jardim Sul,São Paulo,SP,R1,São Paulo Capital,shopping
+L006,Aurora Shopping Paineiras,São Paulo,SP,R1,São Paulo Capital,shopping
+L007,Aurora Shopping Primavera,São Paulo,SP,R1,São Paulo Capital,shopping
+L008,Aurora Shopping Horizonte,São Paulo,SP,R1,São Paulo Capital,shopping
+L009,Aurora Shopping Estação,São Paulo,SP,R1,São Paulo Capital,shopping
+L010,Aurora Shopping Mirante,São Paulo,SP,R1,São Paulo Capital,shopping
+L011,Aurora Shopping Norte,São Paulo,SP,R1,São Paulo Capital,shopping
+L012,Aurora Shopping Alameda,São Paulo,SP,R1,São Paulo Capital,shopping
+L013,Aurora Shopping Colinas,São Paulo,SP,R1,São Paulo Capital,shopping
+L014,Aurora Shopping Bosque,São Paulo,SP,R1,São Paulo Capital,shopping
+L015,Aurora Shopping Aeroporto,São Paulo,SP,R1,São Paulo Capital,shopping
+L016,Aurora Moema (rua),São Paulo,SP,R1,São Paulo Capital,rua
+L017,Aurora Pinheiros (rua),São Paulo,SP,R1,São Paulo Capital,rua
+L018,Aurora Shopping Parque Leste,São Paulo,SP,R1,São Paulo Capital,shopping
+L019,Aurora Tatuapé (rua),São Paulo,SP,R1,São Paulo Capital,rua
+L020,Aurora Shopping Lagoa,São Paulo,SP,R1,São Paulo Capital,shopping
+L021,Aurora Santo André Shopping Aeroporto,Santo André,SP,R2,Grande SP e Litoral,shopping
+L022,Aurora São Bernardo do Campo Shopping Ipê,São Bernardo do Campo,SP,R2,Grande SP e Litoral,shopping
+L023,Aurora Barueri Shopping Parque,Barueri,SP,R2,Grande SP e Litoral,shopping
+L024,Aurora Praia Grande Shopping Colinas,Praia Grande,SP,R2,Grande SP e Litoral,shopping
+L025,Aurora Santos Shopping Horizonte,Santos,SP,R2,Grande SP e Litoral,shopping
+L026,Aurora Mogi das Cruzes Shopping Horizonte,Mogi das Cruzes,SP,R2,Grande SP e Litoral,shopping
+L027,Aurora Guarulhos Shopping Primavera,Guarulhos,SP,R2,Grande SP e Litoral,shopping
+L028,Aurora Mogi das Cruzes Shopping Estação,Mogi das Cruzes,SP,R2,Grande SP e Litoral,shopping
+L029,Aurora Santos Centro (rua),Santos,SP,R2,Grande SP e Litoral,rua
+L030,Aurora Guarulhos Shopping Oeste,Guarulhos,SP,R2,Grande SP e Litoral,shopping
+L031,Aurora Barueri Shopping Colinas,Barueri,SP,R2,Grande SP e Litoral,shopping
+L032,Aurora Mogi das Cruzes Shopping Vila Nova,Mogi das Cruzes,SP,R2,Grande SP e Litoral,shopping
+L033,Aurora Santos Shopping Bela Vista,Santos,SP,R2,Grande SP e Litoral,shopping
+L034,Aurora São Bernardo do Campo Shopping Ponte Alta,São Bernardo do Campo,SP,R2,Grande SP e Litoral,shopping
+L035,Aurora Santo André Shopping Leste,Santo André,SP,R2,Grande SP e Litoral,shopping
+L036,Aurora Guarulhos Centro (rua),Guarulhos,SP,R2,Grande SP e Litoral,rua
+L037,Aurora Mogi das Cruzes Shopping Paineiras,Mogi das Cruzes,SP,R2,Grande SP e Litoral,shopping
+L038,Aurora Osasco Shopping Oeste,Osasco,SP,R2,Grande SP e Litoral,shopping
+L039,Aurora Barueri Shopping Bela Vista,Barueri,SP,R2,Grande SP e Litoral,shopping
+L040,Aurora Praia Grande Shopping Mirante,Praia Grande,SP,R2,Grande SP e Litoral,shopping
+L041,Aurora Sorocaba Shopping Alameda,Sorocaba,SP,R3,Interior de SP,shopping
+L042,Aurora São José do Rio Preto Shopping Vale Verde,São José do Rio Preto,SP,R3,Interior de SP,shopping
+L043,Aurora São José dos Campos Shopping Mirante,São José dos Campos,SP,R3,Interior de SP,shopping
+L044,Aurora Campinas Centro (rua),Campinas,SP,R3,Interior de SP,rua
+L045,Aurora São José do Rio Preto Shopping Vila Nova,São José do Rio Preto,SP,R3,Interior de SP,shopping
+L046,Aurora Piracicaba Shopping Paineiras,Piracicaba,SP,R3,Interior de SP,shopping
+L047,Aurora Bauru Shopping Primavera,Bauru,SP,R3,Interior de SP,shopping
+L048,Aurora Piracicaba Shopping Ipê,Piracicaba,SP,R3,Interior de SP,shopping
+L049,Aurora São José do Rio Preto Shopping Estação,São José do Rio Preto,SP,R3,Interior de SP,shopping
+L050,Aurora São José dos Campos Shopping Estação,São José dos Campos,SP,R3,Interior de SP,shopping
+L051,Aurora Bauru Shopping Ponte Alta,Bauru,SP,R3,Interior de SP,shopping
+L052,Aurora Ribeirão Preto Centro (rua),Ribeirão Preto,SP,R3,Interior de SP,rua
+L053,Aurora Bauru Shopping Lagoa,Bauru,SP,R3,Interior de SP,shopping
+L054,Aurora Campinas Shopping Cidade Nova,Campinas,SP,R3,Interior de SP,shopping
+L055,Aurora Campinas Shopping Oeste,Campinas,SP,R3,Interior de SP,shopping
+L056,Aurora Bauru Shopping Colinas,Bauru,SP,R3,Interior de SP,shopping
+L057,Aurora Ribeirão Preto Shopping Cidade Nova,Ribeirão Preto,SP,R3,Interior de SP,shopping
+L058,Aurora Jundiaí Shopping Ponte Alta,Jundiaí,SP,R3,Interior de SP,shopping
+L059,Aurora São José do Rio Preto Shopping Mirante,São José do Rio Preto,SP,R3,Interior de SP,shopping
+L060,Aurora Campinas Shopping Vale Verde,Campinas,SP,R3,Interior de SP,shopping
+L061,Aurora Rio de Janeiro Shopping Alameda,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L062,Aurora Petrópolis Shopping Vila Nova,Petrópolis,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L063,Aurora Vitória Shopping Vila Nova,Vitória,ES,R4,Rio de Janeiro e Espírito Santo,shopping
+L064,Aurora Rio de Janeiro Shopping Colinas,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L065,Aurora Petrópolis Shopping Colinas,Petrópolis,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L066,Aurora Nova Iguaçu Shopping Horizonte,Nova Iguaçu,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L067,Aurora Rio de Janeiro Shopping Vila Nova,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L068,Aurora Duque de Caxias Shopping Jardim Sul,Duque de Caxias,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L069,Aurora Rio de Janeiro Shopping Leste,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L070,Aurora Petrópolis Shopping Paineiras,Petrópolis,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L071,Aurora Rio de Janeiro Shopping Ipê,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L072,Aurora Niterói Shopping Parque,Niterói,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L073,Aurora Rio de Janeiro Shopping Horizonte,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L074,Aurora Petrópolis Shopping Mirante,Petrópolis,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L075,Aurora Duque de Caxias Shopping Aeroporto,Duque de Caxias,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L076,Aurora Rio de Janeiro Shopping Primavera,Rio de Janeiro,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L077,Aurora Niterói Shopping Bosque,Niterói,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L078,Aurora Niterói Shopping Vale Verde,Niterói,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L079,Aurora Niterói Shopping Paineiras,Niterói,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L080,Aurora Duque de Caxias Shopping Vila Nova,Duque de Caxias,RJ,R4,Rio de Janeiro e Espírito Santo,shopping
+L081,Aurora Juiz de Fora Shopping Estação,Juiz de Fora,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L082,Aurora Goiânia Shopping Parque,Goiânia,GO,R5,Minas Gerais e Centro-Oeste,shopping
+L083,Aurora Brasília Shopping Mirante,Brasília,DF,R5,Minas Gerais e Centro-Oeste,shopping
+L084,Aurora Brasília Shopping Horizonte,Brasília,DF,R5,Minas Gerais e Centro-Oeste,shopping
+L085,Aurora Uberlândia Shopping Bosque,Uberlândia,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L086,Aurora Belo Horizonte Shopping Vila Nova,Belo Horizonte,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L087,Aurora Uberlândia Centro (rua),Uberlândia,MG,R5,Minas Gerais e Centro-Oeste,rua
+L088,Aurora Contagem Shopping Bosque,Contagem,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L089,Aurora Contagem Shopping Horizonte,Contagem,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L090,Aurora Uberlândia Shopping Primavera,Uberlândia,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L091,Aurora Belo Horizonte Shopping Horizonte,Belo Horizonte,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L092,Aurora Campo Grande Centro (rua),Campo Grande,MS,R5,Minas Gerais e Centro-Oeste,rua
+L093,Aurora Campo Grande Shopping Vila Nova,Campo Grande,MS,R5,Minas Gerais e Centro-Oeste,shopping
+L094,Aurora Campo Grande Shopping Horizonte,Campo Grande,MS,R5,Minas Gerais e Centro-Oeste,shopping
+L095,Aurora Belo Horizonte Shopping Mirante,Belo Horizonte,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L096,Aurora Contagem Shopping Colinas,Contagem,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L097,Aurora Brasília Shopping Ipê,Brasília,DF,R5,Minas Gerais e Centro-Oeste,shopping
+L098,Aurora Uberlândia Shopping Vila Nova,Uberlândia,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L099,Aurora Cuiabá Shopping Ponte Alta,Cuiabá,MT,R5,Minas Gerais e Centro-Oeste,shopping
+L100,Aurora Belo Horizonte Shopping Bela Vista,Belo Horizonte,MG,R5,Minas Gerais e Centro-Oeste,shopping
+L101,Aurora Blumenau Shopping Colinas,Blumenau,SC,R6,Sul,shopping
+L102,Aurora Florianópolis Shopping Cidade Nova,Florianópolis,SC,R6,Sul,shopping
+L103,Aurora Blumenau Shopping Oeste,Blumenau,SC,R6,Sul,shopping
+L104,Aurora Caxias do Sul Shopping Vila Nova,Caxias do Sul,RS,R6,Sul,shopping
+L105,Aurora Blumenau Shopping Aeroporto,Blumenau,SC,R6,Sul,shopping
+L106,Aurora Curitiba Shopping Ipê,Curitiba,PR,R6,Sul,shopping
+L107,Aurora Curitiba Shopping Paineiras,Curitiba,PR,R6,Sul,shopping
+L108,Aurora Maringá Shopping Leste,Maringá,PR,R6,Sul,shopping
+L109,Aurora Blumenau Centro (rua),Blumenau,SC,R6,Sul,rua
+L110,Aurora Florianópolis Shopping Paineiras,Florianópolis,SC,R6,Sul,shopping
+L111,Aurora Curitiba Shopping Oeste,Curitiba,PR,R6,Sul,shopping
+L112,Aurora Blumenau Shopping Horizonte,Blumenau,SC,R6,Sul,shopping
+L113,Aurora Blumenau Shopping Bosque,Blumenau,SC,R6,Sul,shopping
+L114,Aurora Porto Alegre Shopping Alameda,Porto Alegre,RS,R6,Sul,shopping
+L115,Aurora Joinville Centro (rua),Joinville,SC,R6,Sul,rua
+L116,Aurora Maringá Shopping Ipê,Maringá,PR,R6,Sul,shopping
+L117,Aurora Curitiba Shopping Cidade Nova,Curitiba,PR,R6,Sul,shopping
+L118,Aurora Blumenau Shopping Mirante,Blumenau,SC,R6,Sul,shopping
+L119,Aurora Curitiba Shopping Primavera,Curitiba,PR,R6,Sul,shopping
+L120,Aurora Curitiba Shopping Vila Nova,Curitiba,PR,R6,Sul,shopping
