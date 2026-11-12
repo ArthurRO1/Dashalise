@@ -1,0 +1,37 @@
+[
+  {
+    "category": "cliente com pressa",
+    "tags": ["apressado", "apressada", "pressa", "tempo", "direto"],
+    "question": "Meu cliente está com pressa. O que eu digo?",
+    "good_answer": "Entendi. Para ir direto ao ponto, o que você precisa resolver primeiro? Vou focar nisso.",
+    "criteria": ["responder diretamente", "ser breve", "priorizar uma necessidade", "não rotular a personalidade do cliente"]
+  },
+  {
+    "category": "dúvida técnica",
+    "tags": ["técnico", "tecnico", "compatibilidade", "integração", "integra", "recurso"],
+    "question": "Esse produto integra com o sistema que já uso?",
+    "good_answer": "Essa integração não está confirmada no material cadastrado. Qual sistema você usa? Com esse nome, posso verificar a documentação disponível; antes de prometer, confirmaria com a equipe técnica.",
+    "criteria": ["não inventar compatibilidade", "apontar informação ausente", "pedir detalhe útil", "indicar validação"]
+  },
+  {
+    "category": "descoberta de necessidade",
+    "tags": ["necessidade", "investigar", "perguntas", "spin", "cliente"],
+    "question": "Como descubro o que o cliente realmente precisa?",
+    "good_answer": "Pergunte como ele resolve isso hoje e o que gostaria de melhorar. Depois, confirme o que entendeu antes de sugerir uma opção.",
+    "criteria": ["dar ação prática", "usar pergunta aberta", "confirmar entendimento", "não recomendar antes de investigar"]
+  },
+  {
+    "category": "objeção de preço",
+    "tags": ["preço", "preco", "caro", "objeção", "objecao", "valor"],
+    "question": "O cliente disse que está caro. Como respondo?",
+    "good_answer": "Entendo. Para comparar com o que faz sentido para você, qual resultado ou recurso é prioridade? Posso explicar o valor relacionado a esse ponto e também as opções disponíveis.",
+    "criteria": ["acolher sem confrontar", "investigar o critério", "relacionar valor a necessidade confirmada", "não pressionar"]
+  },
+  {
+    "category": "aprendizado do vendedor",
+    "tags": ["melhorar", "desempenho", "prática", "treinar", "cancelamento"],
+    "question": "Como posso melhorar minha abordagem na próxima venda?",
+    "good_answer": "Escolha uma etapa para praticar. Na próxima conversa, faça uma pergunta aberta, escute a resposta e confirme a necessidade antes de apresentar uma solução.",
+    "criteria": ["dar um passo praticável", "não atribuir falhas sem evidência", "usar metodologia cadastrada", "tom construtivo"]
+  }
+]

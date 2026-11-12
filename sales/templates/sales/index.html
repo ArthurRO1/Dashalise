@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e8e6fb" />
+    <meta name="description" content="Dashalise — inteligência comercial para acompanhar vendas e metas." />
+    <title>Dashalise · Inteligência comercial</title>
+    <link rel="stylesheet" href="/static/sales/styles.css?v=20261112-chat-taller" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#inicio" data-page="inicio" aria-label="Dashalise, início">
+        <span class="brand-mark">D</span>
+        <span class="brand-word">Dashalise</span>
+      </a>
+      <nav class="main-nav" id="navigation" aria-label="Navegação principal">
+        <button class="nav-link active" data-page="inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" /></svg>Início</button>
+        <button class="nav-link" data-page="indicadores"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V12M10 19V5M16 19v-9M22 19V3" /></svg>Indicadores</button>
+        <button class="nav-link" data-page="vendas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L22 8H6M10 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM18 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" /></svg>Vendas</button>
+        <button class="nav-link" data-page="metas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Metas</button>
+        <button class="nav-link" data-page="equipe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" /></svg>Equipe</button>
+        <button class="nav-link" data-page="produtos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 9 5v10l-9 5-9-5V7zM3 7l9 5 9-5M12 22V12" /></svg>Produtos</button>
+        <button class="nav-link" data-page="treinamento"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 9 10-5 10 5-10 5zM6 11v5c3 3 9 3 12 0v-5M22 9v7" /></svg>Método de venda</button>
+        <button class="nav-link manager-only hidden" data-page="especializacao">Especialização IA</button>
+      </nav>
+      <div class="topbar-actions">
+        <label class="role-picker"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 7 5 5 5-8 5 8 5-5-2 13H4L2 7Z" /></svg><select id="roleSelect" aria-label="Perfil de demonstração">
+          <option value="funcionario">Funcionário</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="gerente">Gerente</option>
+          <option value="administrador">Administrador</option>
+        </select></label>
+        <button class="icon-button" id="notificationButton" title="Alertas" aria-label="Abrir alertas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><i id="alertDot"></i><span class="notification-count hidden" id="alertCount">0</span></button>
+        <span class="avatar" id="topAvatar">MC</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section id="homeView" class="home-view">
+        <div class="home-decoration" aria-hidden="true">
+          <svg viewBox="0 0 480 190" role="presentation">
+            <path class="chart-stroke" d="M10 156c72 15 93-52 153-42s74 26 125 3 70-24 104-12 50-6 78-74" />
+            <path class="chart-fill" d="M10 156c72 15 93-52 153-42s74 26 125 3 70-24 104-12 50-6 78-74v159H10z" />
+            <rect x="278" y="116" width="25" height="52" rx="5"/><rect x="316" y="93" width="25" height="75" rx="5"/><rect x="354" y="72" width="25" height="96" rx="5"/><rect x="392" y="50" width="25" height="118" rx="5"/><rect x="430" y="27" width="25" height="141" rx="5"/>
+            <circle cx="470" cy="31" r="5"/><path class="chart-sparkle" d="M196 24c3 12 7 16 19 19-12 3-16 7-19 19-3-12-7-16-19-19 12-3 16-7 19-19Z"/>
+          </svg>
+        </div>
+        <div class="welcome-copy">
+          <p class="eyebrow">SEU ESPAÇO COMERCIAL</p>
+          <h1 id="welcomeTitle">Bom dia, Mariana.<br />O que você quer <span class="welcome-accent">descobrir?</span></h1>
+          <p class="welcome-subtitle">Converse com seus dados de vendas ou peça ajuda para conduzir uma venda.</p>
+        </div>
+
+        <div class="workspace-grid">
+          <aside class="conversation-sidebar">
+            <div class="sidebar-heading"><span class="sidebar-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8l-5 3V6a2 2 0 0 1 1-2Zm3 5h10M7 13h7" /></svg>Conversas</span><button id="newConversation" aria-label="Nova conversa" title="Nova conversa">＋</button></div>
+            <div id="conversationList" class="conversation-list"><p class="quiet">Suas conversas aparecerão aqui.</p></div>
+            <div class="history-note">As conversas são organizadas por venda e etapa.</div>
+          </aside>
+
+          <section class="chat-area" id="chatArea" aria-label="Assistente comercial">
+            <div class="chat-context hidden" id="chatContext">
+              <div><p class="eyebrow">CONTEXTO ATUAL</p><strong id="contextTitle">Conversa geral</strong></div>
+              <div class="context-selects">
+                <select id="stageSelect" aria-label="Etapa da venda">
+                  <option value="general">Pergunta geral</option>
+                  <option value="observe">1 · Observar</option>
+                  <option value="investigate">2 · Investigar (SPIN)</option>
+                  <option value="classify">3 · Classificar</option>
+                  <option value="personalize">4 · Personalizar</option>
+                  <option value="value">5 · Construir valor</option>
+                  <option value="decision">6 · Conduzir decisão</option>
+                  <option value="learn">7 · Aprender e evoluir</option>
+                </select>
+              </div>
+            </div>
+            <div class="message-list" id="messageList">
+              <div class="welcome-chat" id="welcomeChat">
+                <span class="assistant-orb">✦</span>
+                <h2>Assistente comercial</h2>
+                <p>Pergunte sobre suas metas, uma venda ou como adaptar sua abordagem ao cliente.</p>
+                <div class="suggestion-list">
+                  <button data-prompt="Quanto falta para eu alcançar minha meta?"><span>↗</span> Quanto falta para minha meta?</button>
+                  <button data-prompt="Como posso investigar a necessidade deste cliente usando SPIN?"><span>⌕</span> Me ajude a entender o cliente</button>
+                  <button data-prompt="Como apresentar valor sem pressionar o cliente?"><span>✦</span> Como conduzir uma venda?</button>
+                </div>
+              </div>
+            </div>
+            <form class="composer" id="assistantForm">
+              <textarea id="assistantQuestion" rows="1" maxlength="1000" placeholder="Pergunte qualquer coisa sobre vendas… (Enter envia · Shift+Enter quebra linha)" aria-label="Sua mensagem"></textarea>
+              <div class="composer-toolbar">
+                <div class="composer-options">
+                  <span class="web-status" title="A busca web é automática; o Gemini pesquisa quando isso ajuda a responder.">
+                    <span class="web-checkbox" aria-hidden="true">✓</span><span>Buscar na web</span><b id="webAvailability">Gemini</b>
+                  </span>
+                  <span class="privacy-label">Seus dados de vendas ficam no sistema</span>
+                </div>
+                <button class="send-button" aria-label="Enviar mensagem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.3 2.8a.8.8 0 0 0-.8 1l3.1 7.3 8.1.9-8.1.9-3.1 7.3a.8.8 0 0 0 1.1 1l17.7-8.9a1 1 0 0 0 0-1.8L4.4 2.6a.8.8 0 0 0-1.1.2Z" /></svg></button>
+              </div>
+            </form>
+            <p class="disclaimer">A IA ajuda a consultar e organizar informações. As etapas são sugestões, não um roteiro obrigatório.</p>
+          </section>
+        </div>
+      </section>
+
+      <section class="page-view hidden" id="pageView" aria-live="polite"></section>
+    </main>
+
+    <button class="floating-chat-trigger hidden" id="floatingChatTrigger">✦ <span>Continuar conversa</span><i id="unreadDot"></i></button>
+    <section class="floating-chat hidden" id="floatingChat" aria-label="Conversa em andamento">
+      <header class="floating-header"><span class="assistant-orb small">✦</span><div><strong id="floatingTitle">Assistente comercial</strong><small id="floatingStage">Conversa em andamento</small></div><button id="expandChat" title="Voltar à tela inicial">↗</button><button id="closeFloatingChat" title="Minimizar">−</button></header>
+      <div class="floating-messages" id="floatingMessages"></div>
+      <form class="floating-composer" id="floatingForm"><input id="floatingQuestion" maxlength="1000" placeholder="Continue a conversa…" /><button aria-label="Enviar">↑</button></form>
+    </section>
+    <dialog class="reflection-dialog" id="reflectionDialog" aria-labelledby="reflectionTitle">
+      <header class="reflection-dialog-heading">
+        <div><p class="eyebrow">APRENDIZADO DA VENDA</p><h2 id="reflectionTitle">Registrar uma dificuldade</h2></div>
+        <button class="icon-button" id="closeReflectionDialog" type="button" aria-label="Fechar">×</button>
+      </header>
+      <p class="reflection-context" id="reflectionContext"></p>
+      <form id="reflectionForm">
+        <label class="reflection-label" for="reflectionStage">Em qual etapa surgiu a dificuldade?</label>
+        <select id="reflectionStage" name="stage" required>
+          <option value="observe">Preparação e abertura</option>
+          <option value="investigate">Investigar a necessidade (SPIN)</option>
+          <option value="classify">Entender o momento de compra</option>
+          <option value="personalize">Personalizar a abordagem</option>
+          <option value="value">Construir valor</option>
+          <option value="decision">Tratar objeção ou conduzir decisão</option>
+          <option value="learn">Acompanhamento e pós-venda</option>
+        </select>
+        <label class="reflection-label" for="reflectionChallenge">O que foi difícil ou o que você gostaria de tentar diferente?</label>
+        <textarea id="reflectionChallenge" name="challenge" maxlength="500" required placeholder="Ex.: tive dificuldade para entender a prioridade do cliente antes de apresentar o produto."></textarea>
+        <p class="reflection-help">Esse relato ajuda a IA a sugerir uma prática específica. Ele não é uma avaliação automática.</p>
+        <div class="reflection-actions"><button class="button" type="button" id="cancelReflection">Cancelar</button><button class="button primary" type="submit">Salvar e pedir orientação</button></div>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="/static/sales/app.js?v=20261112-chat-input" defer></script>
+  </body>
+</html>
