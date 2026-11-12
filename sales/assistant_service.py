@@ -1,7 +1,6 @@
 """Conversation context, internal guidance and optional grounded web research."""
 from django.conf import settings
 from django.db.models import Q
-from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 import json
@@ -15,9 +14,11 @@ from .models import (
     Conversation,
     KnowledgeArticle,
     ProductSpecialization,
+    PriorYearStoreSales,
     Sale,
     SaleReflection,
 )
+from .dates import default_reporting_period
 from .services import dashboard_summary, visible_sales
 
 
@@ -152,7 +153,7 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
         pass
     if sale:
         reflection = sale.reflections.first()
-        context_parts.append(f"Contexto da venda: produto {sale.product.name}; etapa {stage_label(stage)}.")
+        context_parts.append(f"Contexto da venda: produto {sale.product.name if sale.product_id else 'não informado nos dados'}; etapa {stage_label(stage)}.")
         if reflection:
             context_parts.append(f"Anotação de aprendizagem do vendedor: {reflection.challenge[:500]}")
     context = "\n\n".join(context_parts) or "A empresa ainda não cadastrou material de referência para esta pergunta."
@@ -167,6 +168,9 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
         "Não repita a pergunta, não apresente etapa ou contexto que não foi solicitado, nem despeje catálogo, "
         "especializações ou material de referência. Seja breve: no máximo 3 frases curtas, salvo pedido de detalhes. "
         "Use o material fornecido como fonte da verdade. Não invente preço, recurso, compatibilidade, prazo ou política. "
+        "Quando a pergunta pedir pesquisa científica, use a busca disponível, cite fontes publicadas e separe evidência externa dos dados da empresa. "
+        "Diferencie cálculo descritivo, associação, hipótese e causalidade; não diga que uma prática ou este software causou resultado sem evidência experimental apropriada. "
+        "A base Rede Aurora é fictícia e não contém produtos por transação, motivos de cancelamento ou observações de conversas reais. "
         "Se faltar informação, diga isso e indique exatamente o que confirmar. Para situações com clientes, trate pressa e perfil "
         "como contexto momentâneo, não como característica fixa. Dê um exemplo de fala quando ajudar, adaptado ao pedido; "
         "não despeje um roteiro inteiro se o usuário pedir algo específico. Não calcule nem invente resultados de vendas. "
@@ -231,8 +235,7 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
 
 def sales_answer(user, role, company, question, stage, sale=None, about_another=False):
     """Use server-calculated data and company knowledge; never ask the model to calculate."""
-    today = timezone.localdate()
-    period_start = today.replace(day=1)
+    period_start, today = default_reporting_period()
     metrics = dashboard_summary(user, role, company, period_start, today)
     normalized = question.casefold()
     def brl(value):
@@ -259,22 +262,18 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             owner = user.get_full_name() if about_another else "Você"
             return f"Na venda #{latest_reflection.sale_id}, {owner} registrou esta dificuldade: {latest_reflection.challenge} Foi uma anotação de aprendizado, não uma avaliação independente. Posso sugerir como praticar a etapa {latest_reflection.get_stage_display()}.", [], "aprendizado registrado para a venda"
         return (
-            "Os registros disponíveis mostram vendas, metas e cancelamentos, mas não guardam a conversa real com o cliente. "
+            "Os registros disponíveis mostram vendas e metas, mas não guardam a conversa real com o cliente. "
             "Por isso, não consigo afirmar qual etapa ou comportamento causou um resultado. Posso apontar um sinal mensurável e sugerir uma prática para investigar a necessidade, apresentar valor ou tratar objeções."
         ), [], "limite dos dados disponíveis"
 
     if role == "funcionario" and any(term in normalized for term in ("como está", "como esta", "desempenho", "resultado", "performance", "quanto vendeu", "vendeu", "cancelamento")):
-        total_sales = visible_sales(user, role, company, period_start, today)
-        total_count = total_sales.count()
-        cancelled_count = total_sales.filter(status=Sale.Status.CANCELLED).count()
         subject = user.get_full_name() if about_another else "Você"
         sentence = f"{subject} tem"
-        cancel_rate = cancelled_count / max(total_count, 1) * 100
         return (
             f"{sentence} {brl(metrics['revenue'])} em vendas válidas e {metrics['orders']} pedidos neste mês. "
             f"A meta está em {metrics['goal_progress_percent']:.1f}% ({brl(metrics['goal'])}); "
             f"a comissão acumulada é {brl(metrics['commission'])}. "
-            f"Há {cancelled_count} registros cancelados entre {total_count} vendas ({cancel_rate:.1f}%)."
+            "A base do desafio não informa cancelamentos nem os motivos das vendas perdidas."
         ), [], "dados internos do perfil individual"
 
     if any(word in normalized for word in ("meta", "falta", "atingir", "quanto vendi", "minhas vendas", "comiss", "ticket", "pedido")):
@@ -294,11 +293,16 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
         ), [], "dados internos"
 
     if any(word in normalized for word in ("cancelamento", "cancelada", "canceladas")):
-        tracked = visible_sales(user, role, company, period_start, today)
-        total = tracked.count()
-        cancelled = tracked.filter(status=Sale.Status.CANCELLED).count()
-        rate = cancelled / max(total, 1) * 100
-        return f"Neste mês foram registrados {cancelled} cancelamentos entre {total} vendas visíveis ({rate:.1f}%). O registro não informa o motivo de cada cancelamento.", [], "dados internos"
+        return "Os arquivos do Desafio 2 não registram cancelamentos nem motivos de perda. A taxa não pode ser calculada com segurança a partir desta base.", [], "limite dos dados disponíveis"
+
+    if any(word in normalized for word in ("conversão", "conversao")):
+        return f"No período, a conversão foi {metrics['conversion_rate_percent']:.1f}%: {metrics['orders']} vendas divididas por {metrics['attendances']} atendimentos.", [], "cálculo determinístico sobre dados internos"
+
+    if any(word in normalized for word in ("peças", "pecas", "p.a.", "preço médio", "preco medio")):
+        return (
+            f"No período foram registradas {metrics['pieces']} peças em {metrics['orders']} vendas, "
+            f"ou {metrics['pieces_per_sale']} peças por venda. O preço médio por peça foi {brl(metrics['average_item_price'])}."
+        ), [], "cálculo determinístico sobre dados internos"
 
     if any(word in normalized for word in ("por dia", "diariamente", "dia para", "ritmo")):
         month_days = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
@@ -313,6 +317,23 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
         answer = f"Mantendo a média diária até agora, a projeção simples é {brl(projected)} no fechamento do mês. É uma estimativa linear, não uma garantia."
         return answer, [], "estimativa com vendas internas"
 
+    if any(term in normalized for term in ("ano passado", "ano anterior", "mesmo período", "mesmo periodo")):
+        if role == "funcionario":
+            return "A base de comparação do ano anterior existe apenas por loja, sem detalhamento por vendedor. Por isso, não consigo atribuir esse comparativo ao seu resultado individual.", [], "limite dos dados disponíveis"
+        store_ids = visible_sales(user, role, company, period_start, today).values_list("team_id", flat=True).distinct()
+        previous_start = period_start - timedelta(days=364)
+        previous_end = today - timedelta(days=364)
+        previous_total = PriorYearStoreSales.objects.filter(
+            company=company, team_id__in=store_ids,
+            sold_at__gte=previous_start, sold_at__lte=previous_end,
+        ).aggregate(total=Sum("amount"))["total"] or Decimal("0")
+        change = metrics["revenue"] - previous_total
+        if previous_total:
+            variation = change / previous_total * 100
+            direction = "acima" if change >= 0 else "abaixo"
+            return f"Neste período, as vendas estão {brl(abs(change))} ({abs(variation):.1f}%) {direction} do mesmo período do ano anterior: {brl(metrics['revenue'])} contra {brl(previous_total)}. A base anterior é agregada por loja.", [], "comparação de dados internos"
+        return "Não há dados comparáveis para o período e lojas selecionados no arquivo do ano anterior.", [], "limite dos dados disponíveis"
+
     if any(word in normalized for word in ("compar", "mês passado", "mes passado", "mês anterior", "mes anterior")):
         previous_end = period_start - timedelta(days=1)
         previous_start = previous_end.replace(day=1)
@@ -325,7 +346,7 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
         return f"O mês anterior teve {brl(previous_total)} em vendas válidas; este mês tem {brl(metrics['revenue'])}.", [], "comparação de dados internos"
 
     if any(word in normalized for word in ("produto", "ranking", "mais vendido", "menos vendido")):
-        sales = visible_sales(user, role, company, period_start, today).filter(status=Sale.Status.VALID)
+        sales = visible_sales(user, role, company, period_start, today).filter(status=Sale.Status.VALID, product__isnull=False)
         order = "amount" if any(word in normalized for word in ("menos", "menor", "pior")) else "-amount"
         ranked = list(
             sales.values("product__name")
@@ -333,7 +354,7 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             .order_by(order)[:3]
         )
         if not ranked:
-            return "Ainda não há vendas válidas neste período para comparar produtos.", [], "dados internos"
+            return "Os arquivos do Desafio 2 não relacionam cada resumo diário a um produto. Posso analisar receita, conversão, peças por venda e metas, mas não afirmar qual produto vendeu mais.", [], "limite dos dados disponíveis"
         listing = "; ".join(f"{item['product__name']}: {brl(item['amount'])}" for item in ranked)
         return f"Produtos ordenados pela receita neste mês: {listing}.", [], "dados internos"
 
@@ -406,7 +427,7 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             if latest_reflection else " Ainda não há uma dificuldade registrada nesta venda."
         )
         return (
-            f"Esta conversa está vinculada à venda #{sale.id} de {sale.product.name}. "
+            f"Esta conversa está vinculada ao resumo diário #{sale.id} de {sale.sold_at:%d/%m/%Y}. "
             f"A etapa selecionada é {stage_label(stage)}. Posso ajudar a preparar perguntas e próximos passos; "
             "não avalio automaticamente o funcionário nem infiro o que o cliente pensa." + reflection_note
         ), [], "contexto da venda"

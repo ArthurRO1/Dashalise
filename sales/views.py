@@ -4,7 +4,7 @@ import io
 import calendar
 import logging
 import re
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
@@ -20,9 +20,10 @@ from rest_framework import status
 
 from .models import (
     Alert, AssistantFeedback, AuditEvent, ChatMessage, Company, Conversation, Goal,
-    Product, ProductSpecialization, Sale, SaleReflection, Team, TeamMembership,
+    PriorYearStoreSales, Product, ProductSpecialization, Sale, SaleReflection, Team, TeamMembership,
 )
 from .assistant_service import generate_sales_guidance, is_contextual_follow_up, sales_answer
+from .dates import default_reporting_period, latest_data_date
 from .permissions import VALID_ROLES
 from .serializers import AlertSerializer, SaleReflectionSerializer, SaleSerializer
 from .services import dashboard_summary, refresh_smart_alerts, visible_sales
@@ -30,10 +31,10 @@ from .services import dashboard_summary, refresh_smart_alerts, visible_sales
 User = get_user_model()
 logger = logging.getLogger(__name__)
 DEMO_USERS = {
-    "funcionario": "mariana@demo.local",
-    "supervisor": "rafael@demo.local",
-    "gerente": "camila@demo.local",
-    "administrador": "alex@demo.local",
+    "funcionario": "bianca.rocha@aurora.example",
+    "supervisor": "patricia.lemos@aurora.example",
+    "gerente": "diego.furtado@aurora.example",
+    "administrador": "marcos.albuquerque@aurora.example",
 }
 
 
@@ -79,7 +80,7 @@ def is_internal_data_request(question):
     metric_words = {
         "meta", "comissão", "comissao", "resultado", "desempenho", "faturamento",
         "ticket", "cancelamento", "cancelamentos", "pedido", "pedidos", "vendas", "vendi",
-        "ritmo", "projeção", "projecao",
+        "ritmo", "projeção", "projecao", "conversão", "conversao", "peças", "pecas", "atendimentos",
     }
     has_lookup = bool(words & lookup_words) or any(term in normalized for term in lookup_phrases)
     has_metric = bool(words & metric_words) or "ticket médio" in normalized or "ticket medio" in normalized
@@ -94,7 +95,7 @@ def demo_context(request):
     if role not in VALID_ROLES:
         return None, None, None, Response({"detail": "Perfil de demonstração inválido."}, status=400)
     user = User.objects.filter(username=DEMO_USERS[role]).first()
-    company = Company.objects.order_by("id").first()
+    company = Company.objects.filter(name="Rede Aurora").first()
     if not user or not company:
         return None, None, None, Response(
             {"detail": "Dados de demonstração ainda não foram criados. Execute: python manage.py seed_demo"},
@@ -105,11 +106,10 @@ def demo_context(request):
 
 
 def date_range(request):
-    today = timezone.localdate()
-    first_day = today.replace(day=1)
+    default_start, default_end = default_reporting_period()
     try:
-        start = date.fromisoformat(request.query_params.get("start", first_day.isoformat()))
-        end = date.fromisoformat(request.query_params.get("end", today.isoformat()))
+        start = date.fromisoformat(request.query_params.get("start", default_start.isoformat()))
+        end = date.fromisoformat(request.query_params.get("end", default_end.isoformat()))
     except ValueError:
         return None, None, Response({"detail": "Use datas ISO: AAAA-MM-DD."}, status=400)
     if start > end:
@@ -129,8 +129,13 @@ def requested_employee(request, role, company):
     except (TypeError, ValueError):
         return None, Response({"detail": "Identificador de funcionário inválido."}, status=400)
     membership = TeamMembership.objects.filter(
-        user_id=employee_id, team__company=company
+        user_id=employee_id,
+        team__company=company,
+        user__demo_identity__source_role="vendedor",
+        user__demo_identity__active_at_demo=True,
     ).select_related("user", "team").first()
+    if membership and role == "gerente" and membership.team.manager_id != user.id:
+        membership = None
     if not membership:
         return None, Response({"detail": "Funcionário não encontrado nesta empresa."}, status=404)
     return membership.user, None
@@ -161,11 +166,28 @@ def dashboard(request):
         team = TeamMembership.objects.filter(user=employee, team__company=company).select_related("team").first()
         summary["employee"] = {"id": employee.id, "name": employee.get_full_name(), "team": team.team.name if team else ""}
     summary["period"] = {"start": start.isoformat(), "end": end.isoformat()}
+    if role != "funcionario":
+        scoped_team_ids = visible_sales(data_user, data_role, company, start, end).values("team_id").distinct()
+        comparison_start = start - timedelta(days=364)
+        comparison_end = end - timedelta(days=364)
+        previous_revenue = PriorYearStoreSales.objects.filter(
+            company=company,
+            team_id__in=scoped_team_ids,
+            sold_at__gte=comparison_start,
+            sold_at__lte=comparison_end,
+        ).aggregate(total=Sum("amount"))["total"] or Decimal("0")
+        current_revenue = Decimal(summary["revenue"])
+        summary["previous_year"] = {
+            "revenue": str(previous_revenue),
+            "start": comparison_start.isoformat(),
+            "end": comparison_end.isoformat(),
+            "change_percent": round(float((current_revenue - previous_revenue) / previous_revenue * 100), 1) if previous_revenue else None,
+        }
     summary["sales_by_day"] = list(
-        sales.values("sold_at").annotate(amount=Sum("amount"), orders=Count("id")).order_by("sold_at")
+        sales.values("sold_at").annotate(amount=Sum("amount"), orders=Sum("sales_count")).order_by("sold_at")
     )
     summary["top_products"] = list(
-        sales.values("product__name").annotate(amount=Sum("amount"), orders=Count("id")).order_by("-amount")[:5]
+        sales.filter(product__isnull=False).values("product__name").annotate(amount=Sum("amount"), orders=Sum("sales_count")).order_by("-amount")[:5]
     )
     summary["status_breakdown"] = list(
         visible_sales(data_user, data_role, company, start, end)
@@ -173,12 +195,19 @@ def dashboard(request):
         .annotate(count=Count("id"), amount=Sum("amount"))
         .order_by("status")
     )
-    summary["cancellation_rate_percent"] = round(
-        (sum(item["count"] for item in summary["status_breakdown"] if item["status"] == Sale.Status.CANCELLED) / max(1, sum(item["count"] for item in summary["status_breakdown"]))) * 100,
-        1,
-    )
+    summary["cancellation_rate_percent"] = None
+    summary["cancellation_data_available"] = False
+    totals = sales.aggregate(pieces=Sum("pieces"), attendances=Sum("attendances"), records=Count("id"))
+    pieces = totals["pieces"] or 0
+    attendances = totals["attendances"] or 0
+    summary["daily_records"] = totals["records"] or 0
+    summary["pieces"] = pieces
+    summary["attendances"] = attendances
+    summary["conversion_rate_percent"] = round(summary["orders"] / attendances * 100, 1) if attendances else 0
+    summary["pieces_per_sale"] = round(pieces / summary["orders"], 2) if summary["orders"] else 0
+    summary["average_item_price"] = str(Decimal(summary["revenue"]) / pieces) if pieces else "0"
     summary["daily_average"] = str((Decimal(summary["revenue"]) / max(1, (end - start).days + 1)))
-    if start.day == 1 and end == timezone.localdate():
+    if start.day == 1 and end == latest_data_date():
         month_days = calendar.monthrange(end.year, end.month)[1]
         summary["closing_projection"] = str(Decimal(summary["revenue"]) / max(1, end.day) * month_days)
         summary["daily_goal_pace"] = str(Decimal(summary["remaining"]) / max(1, month_days - end.day))
@@ -320,14 +349,26 @@ def teams_list(request):
         teams = teams.filter(memberships__user=user)
     elif role == "supervisor":
         teams = teams.filter(supervisor=user)
+    elif role == "gerente":
+        teams = teams.filter(manager=user)
     result = []
     for team in teams.distinct():
-        members = TeamMembership.objects.filter(team=team).select_related("user")
+        members = TeamMembership.objects.filter(
+            team=team,
+            user__demo_identity__active_at_demo=True,
+        ).select_related("user")
         if role == "funcionario":
             members = members.filter(user=user)
         result.append({
             "id": team.id,
             "name": team.name,
+            "external_id": team.external_id,
+            "city": team.city,
+            "state": team.state,
+            "region": team.region_name,
+            "franchisee": team.franchisee,
+            "store_type": team.store_type,
+            "manager": team.manager.get_full_name() if team.manager else None,
             "supervisor": team.supervisor.get_full_name() if team.supervisor else None,
             "members": [{"id": m.user_id, "name": m.user.get_full_name()} for m in members],
         })
@@ -341,16 +382,23 @@ def people_list(request):
         return error
     if role not in {"gerente", "administrador"}:
         return Response({"detail": "A lista de desempenho individual está disponível para gerente e administrador."}, status=403)
-    today = timezone.localdate()
-    month_start = today.replace(day=1)
-    members = TeamMembership.objects.filter(team__company=company).select_related("user", "team").order_by("user__first_name", "user__last_name")
+    month_start, month_end = default_reporting_period()
+    members = TeamMembership.objects.filter(
+        team__company=company,
+        user__demo_identity__source_role="vendedor",
+        user__demo_identity__active_at_demo=True,
+    ).select_related("user", "team").order_by("user__first_name", "user__last_name")
+    if role == "gerente":
+        members = members.filter(team__manager=user)
     sales_by_user = {}
-    for sale in Sale.objects.filter(company=company, sold_at__gte=month_start, sold_at__lte=today).select_related("seller"):
-        row = sales_by_user.setdefault(sale.seller_id, {"revenue": Decimal("0"), "commission": Decimal("0"), "orders": 0, "cancelled": 0})
+    scoped_sales = visible_sales(user, role, company, month_start, month_end).select_related("seller")
+    for sale in scoped_sales:
+        row = sales_by_user.setdefault(sale.seller_id, {"revenue": Decimal("0"), "commission": Decimal("0"), "orders": 0, "attendances": 0, "cancelled": 0})
         if sale.status == Sale.Status.VALID:
             row["revenue"] += sale.amount
             row["commission"] += sale.commission_amount
-            row["orders"] += 1
+            row["orders"] += sale.sales_count
+            row["attendances"] += sale.attendances
         elif sale.status == Sale.Status.CANCELLED:
             row["cancelled"] += 1
     results = []
@@ -360,10 +408,14 @@ def people_list(request):
         if person.id in seen:
             continue
         seen.add(person.id)
-        goal = Goal.objects.filter(company=company, scope=Goal.Scope.USER, user=person, period_start__lte=today, period_end__gte=today).first()
+        goal = Goal.objects.filter(company=company, scope=Goal.Scope.USER, user=person, period_start__lte=month_end, period_end__gte=month_start).first()
         stats = sales_by_user.get(person.id, {})
         revenue = stats.get("revenue", Decimal("0"))
         target = goal.target_amount if goal else Decimal("0")
+        if target and revenue >= target:
+            stats["commission"] = stats.get("commission", Decimal("0")) + Decimal("300")
+        sales_count = stats.get("orders", 0)
+        attendances = stats.get("attendances", 0)
         results.append({
             "id": person.id,
             "name": person.get_full_name(),
@@ -373,6 +425,7 @@ def people_list(request):
             "goal_progress_percent": round(float(revenue / target * 100), 1) if target else 0,
             "commission": str(stats.get("commission", Decimal("0"))),
             "orders": stats.get("orders", 0),
+            "conversion_rate_percent": round(sales_count / attendances * 100, 1) if attendances else 0,
             "cancelled": stats.get("cancelled", 0),
         })
     results.sort(key=lambda item: (-item["goal_progress_percent"], -float(item["revenue"]), item["name"]))
@@ -414,7 +467,7 @@ def products_list(request):
     sales = visible_sales(data_user, data_role, company).filter(status=Sale.Status.VALID)
     rows = []
     for product in products:
-        aggregate = sales.filter(product=product).aggregate(amount=Sum("amount"), orders=Count("id"))
+        aggregate = sales.filter(product=product).aggregate(amount=Sum("amount"), orders=Sum("sales_count"))
         rows.append({"id": product.id, "sku": product.sku, "name": product.name, "amount": aggregate["amount"] or 0, "orders": aggregate["orders"]})
     return Response(rows)
 
@@ -427,7 +480,9 @@ def alerts_list(request):
     employee, error = requested_employee(request, role, company)
     if error:
         return error
-    refresh_smart_alerts(user, role, company)
+    data_user = employee or user
+    data_role = "funcionario" if employee else role
+    refresh_smart_alerts(data_user, data_role, company)
     alerts = Alert.objects.filter(company=company)
     if employee:
         alerts = alerts.filter(Q(user=employee) | Q(team__memberships__user=employee, user__isnull=True)).distinct()
@@ -435,6 +490,8 @@ def alerts_list(request):
         alerts = alerts.filter(Q(user=user) | Q(team__memberships__user=user, user__isnull=True)).distinct()
     elif role == "supervisor":
         alerts = alerts.filter(Q(user=user) | Q(team__supervisor=user) | Q(team__memberships__user=user)).distinct()
+    elif role == "gerente" and not employee:
+        alerts = alerts.filter(Q(user=user) | Q(team__manager=user)).distinct()
     return Response(AlertSerializer(alerts[:100], many=True).data)
 
 
@@ -448,6 +505,8 @@ def mark_alert_read(request, alert_id):
         alert = alert.filter(Q(user=user) | Q(team__memberships__user=user, user__isnull=True)).distinct()
     elif role == "supervisor":
         alert = alert.filter(Q(user=user) | Q(team__supervisor=user) | Q(team__memberships__user=user)).distinct()
+    elif role == "gerente":
+        alert = alert.filter(Q(user=user) | Q(team__manager=user)).distinct()
     item = alert.first()
     if not item:
         return Response({"detail": "Alerta não encontrado."}, status=404)
@@ -481,13 +540,17 @@ def assistant_legacy(request):
     elif any(word in lower for word in ("produto", "ranking")):
         top = (
             visible_sales(user, role, company, start, end)
-            .filter(status=Sale.Status.VALID)
+            .filter(status=Sale.Status.VALID, product__isnull=False)
             .values("product__name")
             .annotate(amount=Sum("amount"))
             .order_by("-amount")
             .first()
         )
-        answer = f"O produto com maior receita no período é {top['product__name']} (R$ {top['amount']})." if top else "Ainda não há vendas válidas no período para analisar produtos."
+        answer = f"O produto com maior receita no período é {top['product__name']} (R$ {top['amount']})." if top else "Os arquivos do Desafio 2 não relacionam os resumos diários a produtos. Posso analisar metas, receita, conversão, peças por venda e preço médio por peça."
+    elif any(word in lower for word in ("conversão", "conversao")):
+        answer = f"A conversão no período é {metrics['conversion_rate_percent']}%: {metrics['orders']} vendas divididas por {metrics['attendances']} atendimentos."
+    elif any(word in lower for word in ("peças", "pecas", "p.a.", "preço médio", "preco medio")):
+        answer = f"No período houve {metrics['pieces']} peças em {metrics['orders']} vendas ({metrics['pieces_per_sale']} peças por venda). O preço médio por peça foi R$ {metrics['average_item_price']:,.2f}."
     elif any(word in lower for word in ("equipe", "vendedor")) and role == "funcionario":
         answer = "Este perfil de demonstração consulta apenas as próprias vendas. Posso ajudar com sua meta, comissão e produtos."
     else:
@@ -665,7 +728,7 @@ def conversations_list(request):
                 "id": chat.id,
                 "title": chat.title,
                 "sale_id": chat.sale_id,
-                "sale_label": f"Venda #{chat.sale_id} · {chat.sale.product.name}" if chat.sale else "Conversa geral",
+                "sale_label": f"Resumo diário · {chat.sale.sold_at:%d/%m/%Y}" if chat.sale else "Conversa geral",
                 "stage": chat.stage,
                 "stage_label": chat.get_stage_display(),
                 "updated_at": chat.updated_at,
@@ -699,7 +762,7 @@ def conversation_detail(request, conversation_id):
         "id": chat.id,
         "title": chat.title,
         "sale_id": chat.sale_id,
-        "sale_label": f"Venda #{chat.sale_id} · {chat.sale.product.name}" if chat.sale else "Conversa geral",
+        "sale_label": f"Resumo diário · {chat.sale.sold_at:%d/%m/%Y}" if chat.sale else "Conversa geral",
         "stage": chat.stage,
         "stage_label": chat.get_stage_display(),
         "messages": [

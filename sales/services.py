@@ -1,10 +1,11 @@
 """Deterministic business calculations shared by API and assistant."""
 from decimal import Decimal
 import calendar
+from datetime import timedelta
 
 from django.db.models import Count, Sum
-from django.utils import timezone
 
+from .dates import latest_data_date
 from .models import Alert, Goal, KnowledgeArticle, Sale, SaleReflection, Team, TeamMembership
 
 
@@ -17,6 +18,9 @@ def visible_sales(user, role, company, start=None, end=None):
         if not teams.exists():
             teams = user.team_memberships.filter(team__company=company).values_list("team_id", flat=True)
         queryset = queryset.filter(team__in=teams)
+    elif role == "gerente":
+        teams = Team.objects.filter(company=company, manager=user)
+        queryset = queryset.filter(team__in=teams)
     if start:
         queryset = queryset.filter(sold_at__gte=start)
     if end:
@@ -26,24 +30,70 @@ def visible_sales(user, role, company, start=None, end=None):
 
 def dashboard_summary(user, role, company, start, end):
     sales = visible_sales(user, role, company, start, end).filter(status=Sale.Status.VALID)
-    totals = sales.aggregate(amount=Sum("amount"), orders=Count("id"))
+    totals = sales.aggregate(
+        amount=Sum("amount"), orders=Sum("sales_count"), pieces=Sum("pieces"),
+        attendances=Sum("attendances"), daily_records=Count("id"),
+    )
     revenue = totals["amount"] or Decimal("0")
-    commission = sum((sale.commission_amount for sale in sales), Decimal("0"))
+    commission = revenue * Decimal("0.03")
+    month_end = (end.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+    if start.day == 1 and end == month_end:
+        individual_goals = Goal.objects.filter(
+            company=company,
+            scope=Goal.Scope.USER,
+            period_start__year=end.year,
+            period_start__month=end.month,
+            period_end__lte=end,
+        )
+        if role == "funcionario":
+            individual_goals = individual_goals.filter(user=user)
+        elif role == "supervisor":
+            scoped_teams = user.supervised_teams.filter(company=company)
+            if not scoped_teams.exists():
+                scoped_teams = Team.objects.filter(company=company, memberships__user=user)
+            eligible_sellers = TeamMembership.objects.filter(team__in=scoped_teams).values("user_id")
+            individual_goals = individual_goals.filter(user_id__in=eligible_sellers)
+        elif role == "gerente":
+            eligible_sellers = TeamMembership.objects.filter(team__manager=user).values("user_id")
+            individual_goals = individual_goals.filter(user_id__in=eligible_sellers)
+        revenue_by_seller = dict(
+            sales.values("seller_id").annotate(total=Sum("amount")).values_list("seller_id", "total")
+        )
+        for individual_goal in individual_goals:
+            seller_revenue = revenue_by_seller.get(individual_goal.user_id, Decimal("0"))
+            if seller_revenue >= individual_goal.target_amount:
+                commission += Decimal("300")
     if role == "funcionario":
         goal = Goal.objects.filter(company=company, user=user, period_start__lte=end, period_end__gte=start).first()
     elif role == "supervisor":
         teams = user.supervised_teams.filter(company=company)
         if not teams.exists():
             teams = TeamMembership.objects.filter(user=user, team__company=company).values("team")
-            goal = Goal.objects.filter(company=company, team__in=teams, period_start__lte=end, period_end__gte=start).first()
+            goal = Goal.objects.filter(company=company, scope=Goal.Scope.TEAM, team__in=teams, period_start__year=end.year, period_start__month=end.month).aggregate(target=Sum("target_amount"))["target"]
         else:
-            goal = Goal.objects.filter(company=company, team__in=teams, period_start__lte=end, period_end__gte=start).first()
+            goal = Goal.objects.filter(company=company, scope=Goal.Scope.TEAM, team__in=teams, period_start__year=end.year, period_start__month=end.month).aggregate(target=Sum("target_amount"))["target"]
+        if isinstance(goal, Decimal):
+            target = goal
+        else:
+            target = goal.target_amount if goal else Decimal("0")
+        goal = None
+    elif role == "gerente":
+        team_ids = Team.objects.filter(company=company, manager=user).values("id")
+        target = Goal.objects.filter(company=company, scope=Goal.Scope.TEAM, team_id__in=team_ids, period_start__year=end.year, period_start__month=end.month).aggregate(target=Sum("target_amount"))["target"] or Decimal("0")
+        goal = None
     else:
         goal = Goal.objects.filter(company=company, scope=Goal.Scope.COMPANY, period_start__lte=end, period_end__gte=start).first()
-    target = goal.target_amount if goal else Decimal("0")
+    if role not in {"supervisor", "gerente"}:
+        target = goal.target_amount if goal else Decimal("0")
     return {
         "revenue": revenue,
         "orders": totals["orders"] or 0,
+        "pieces": totals["pieces"] or 0,
+        "attendances": totals["attendances"] or 0,
+        "daily_records": totals["daily_records"] or 0,
+        "conversion_rate_percent": round((totals["orders"] or 0) / totals["attendances"] * 100, 1) if totals["attendances"] else 0,
+        "pieces_per_sale": round((totals["pieces"] or 0) / totals["orders"], 2) if totals["orders"] else 0,
+        "average_item_price": revenue / totals["pieces"] if totals["pieces"] else Decimal("0"),
         "commission": commission,
         "goal": target,
         "goal_progress_percent": round(float(revenue / target * 100), 1) if target else 0,
@@ -120,17 +170,9 @@ def _refresh_employee_coaching(company, person, today, month_start, days_in_mont
         else:
             _resolve_smart_alert(company, goal_title, user=person)
 
-        total_count = employee_sales.count()
-        cancelled = employee_sales.filter(status=Sale.Status.CANCELLED).count()
-        cancel_title = "[Desenvolvimento] Revisar vendas canceladas"
-        if total_count >= 5 and cancelled / total_count >= 0.10:
-            _upsert_smart_alert(
-                company, cancel_title,
-                f"Indicador de {person.get_full_name()}: {cancelled} de {total_count} registros foram cancelados ({cancelled / total_count:.0%}). Os dados não registram os motivos. {objection_tip}",
-                Alert.Severity.INFO, user=person,
-            )
-        else:
-            _resolve_smart_alert(company, cancel_title, user=person)
+        # The challenge dataset has daily summaries and no canceled-order records.
+        # Clear any stale alert produced by the earlier mock dataset.
+        _resolve_smart_alert(company, "[Desenvolvimento] Revisar vendas canceladas", user=person)
 
     reflection = SaleReflection.objects.filter(
         company=company, seller=person, created_at__date__gte=month_start,
@@ -151,13 +193,13 @@ def _refresh_employee_coaching(company, person, today, month_start, days_in_mont
 
 def refresh_smart_alerts(user, role, company):
     """Create/update data-driven notices for the selected profile's authorized scope."""
-    today = timezone.localdate()
+    today = latest_data_date()
     month_start = today.replace(day=1)
     days_in_month = calendar.monthrange(today.year, today.month)[1]
     elapsed_ratio = today.day / days_in_month
     period_sales = visible_sales(user, role, company, month_start, today)
     valid_sales = period_sales.filter(status=Sale.Status.VALID)
-    current = valid_sales.aggregate(revenue=Sum("amount"), orders=Count("id"))
+    current = valid_sales.aggregate(revenue=Sum("amount"), orders=Sum("sales_count"))
     revenue = current["revenue"] or Decimal("0")
 
     if role == "funcionario":
@@ -185,6 +227,18 @@ def refresh_smart_alerts(user, role, company):
         alert_user = user
         alert_team = None
         label = "a meta da equipe"
+    elif role == "gerente":
+        teams = Team.objects.filter(company=company, manager=user)
+        goals = Goal.objects.filter(
+            company=company,
+            scope=Goal.Scope.TEAM,
+            team__in=teams,
+            period_start__lte=today,
+            period_end__gte=today,
+        )
+        alert_user = user
+        alert_team = None
+        label = "a meta da loja"
     else:
         goals = Goal.objects.filter(
             company=company,
@@ -196,7 +250,7 @@ def refresh_smart_alerts(user, role, company):
         alert_team = None
         label = "a meta da empresa"
 
-    if role == "supervisor":
+    if role in {"supervisor", "gerente"}:
         target = goals.aggregate(target=Sum("target_amount"))["target"] or Decimal("0")
     else:
         goal = goals.first()
@@ -233,21 +287,10 @@ def refresh_smart_alerts(user, role, company):
         _resolve_smart_alert(company, "[Inteligente] Meta em risco", user=alert_user, team=alert_team)
         _resolve_smart_alert(company, "[Inteligente] Ritmo acima do esperado", user=alert_user, team=alert_team)
 
-    all_count = period_sales.count()
-    cancelled_count = period_sales.filter(status=Sale.Status.CANCELLED).count()
-    if all_count >= 5 and cancelled_count / all_count >= 0.10:
-        _upsert_smart_alert(
-            company,
-            "[Inteligente] Cancelamentos acima do limite",
-            f"{cancelled_count} de {all_count} vendas do período foram canceladas ({cancelled_count / all_count:.0%}). Revise a adequação da oferta e os motivos registrados.",
-            Alert.Severity.WARNING,
-            user=alert_user,
-            team=alert_team,
-        )
-    else:
-        _resolve_smart_alert(company, "[Inteligente] Cancelamentos acima do limite", user=alert_user, team=alert_team)
+    # Challenge 2 does not contain canceled-sale records, so no cancellation rate is inferred.
+    _resolve_smart_alert(company, "[Inteligente] Cancelamentos acima do limite", user=alert_user, team=alert_team)
 
-    if revenue > 0 and (current["orders"] or 0) >= 5:
+    if revenue > 0 and (current["orders"] or 0) >= 5 and valid_sales.filter(product__isnull=False).exists():
         top_product = (
             valid_sales.values("product__name")
             .annotate(amount=Sum("amount"))
@@ -272,16 +315,10 @@ def refresh_smart_alerts(user, role, company):
         _refresh_employee_coaching(company, user, today, month_start, days_in_month)
 
     if role in {"gerente", "administrador"}:
-        members = TeamMembership.objects.filter(team__company=company).select_related("user", "team")
-        seen_members = set()
-        for membership in members:
-            person = membership.user
-            if person.pk in seen_members:
-                continue
-            seen_members.add(person.pk)
-            _refresh_employee_coaching(company, person, today, month_start, days_in_month)
-
-        for team in Team.objects.filter(company=company):
+        scoped_teams = Team.objects.filter(company=company)
+        if role == "gerente":
+            scoped_teams = scoped_teams.filter(manager=user)
+        for team in scoped_teams:
             team_goal = Goal.objects.filter(
                 company=company,
                 scope=Goal.Scope.TEAM,

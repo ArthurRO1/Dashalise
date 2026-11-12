@@ -6,10 +6,14 @@ from sales.models import (
     AssistantFeedback,
     ChatMessage,
     Conversation,
+    DemoIdentity,
     KnowledgeArticle,
     Product,
     ProductSpecialization,
+    PriorYearStoreSales,
+    Sale,
     SaleReflection,
+    Team,
 )
 
 
@@ -26,6 +30,11 @@ class Command(BaseCommand):
             for model, field_names in (
                 (Product, ("category", "description")),
                 (KnowledgeArticle, ("stage", "category")),
+                (Team, (
+                    "manager", "external_id", "city", "state", "region_code", "region_name",
+                    "regional_manager_name", "franchisee", "store_type", "opened_at", "opens_sunday",
+                )),
+                (Sale, ("sales_count", "pieces", "attendances")),
             ):
                 if model._meta.db_table not in tables:
                     continue
@@ -43,7 +52,24 @@ class Command(BaseCommand):
                         columns.add(field.column)
                         self.stdout.write(f"Campo adicionado: {model.__name__}.{field_name}")
 
-            for model in (ProductSpecialization, Conversation, ChatMessage, SaleReflection, AssistantFeedback):
+            if Sale._meta.db_table in tables:
+                field = Sale._meta.get_field("product")
+                with connection.cursor() as cursor:
+                    columns = {
+                        column.name
+                        for column in connection.introspection.get_table_description(
+                            cursor, Sale._meta.db_table
+                        )
+                    }
+                if field.column in columns and not field.null:
+                    nullable_field = field.clone()
+                    nullable_field.null = True
+                    editor.alter_field(Sale, field, nullable_field, strict=False)
+
+            for model in (
+                DemoIdentity, PriorYearStoreSales, ProductSpecialization, Conversation,
+                ChatMessage, SaleReflection, AssistantFeedback,
+            ):
                 if model._meta.db_table not in tables:
                     editor.create_model(model)
                     tables.add(model._meta.db_table)

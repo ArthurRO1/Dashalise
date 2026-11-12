@@ -20,7 +20,11 @@ python manage.py seed_demo
 python manage.py runserver
 ```
 
-Abra <http://127.0.0.1:8000>. A demonstração usa SQLite em `db.sqlite3`. O comando `seed_demo` cria ou atualiza os dados ilustrativos.
+Abra <http://127.0.0.1:8000>. A demonstração usa SQLite em `db.sqlite3`. O comando `seed_demo` carrega os CSVs de `dados/desafio-2-dashboards/` para a empresa fictícia Rede Aurora; ele substitui os registros demonstrativos da empresa no banco local, inclusive conversas e anotações vinculadas aos dados antigos. Execute-o somente quando quiser recriar a base da demo.
+
+São importadas 120 lojas, 1.101 perfis de usuários, a lista de 1.095 vendedores e gerentes (incluindo identidades históricas inativas para manter vendas de pessoas desligadas), 80.136 resumos diários vendedor-loja, metas individuais e por loja e 10.262 observações de lojas do ano anterior. A demonstração abre outubro de 2026, o último mês fechado antes do cenário de 02/11/2026. A comparação anual usa as datas 364 dias antes, conforme o arquivo.
+
+Os CSVs de venda são agregados por pessoa e dia; não incluem catálogo/produto por transação, clientes, motivos de cancelamento, nem conversas de atendimento. Por isso o painel calcula conversão, P.A., ticket médio, preço médio, metas e comissão, mas não inventa ranking de produtos nem taxa de cancelamento. O catálogo que o gerente pode cadastrar serve como referência para a IA e não é ligado às vendas históricas sem uma fonte detalhada.
 
 ### Assistente Gemini e pesquisa web automática
 
@@ -49,9 +53,9 @@ O ajuste de pesos (fine-tuning) não está disponível atualmente na Gemini Deve
 - Conversas persistidas no banco e organizadas por venda e etapa do Método de Venda Adaptativa.
 - Chat compacto disponível ao navegar para outras abas, preservando a conversa ativa.
 - Respostas podem trazer atalhos para a aba da meta, produto, equipe ou venda correspondente.
-- Painel de indicadores com evolução diária de vendas, ranking de produtos, ticket médio, cancelamentos e projeção de fechamento.
+- Painel de indicadores com evolução diária de vendas, ticket médio, conversão, peças por venda, preço médio e projeção de fechamento. A comparação anual é apresentada por loja, pois o arquivo histórico não detalha vendedor.
 - Vendas, metas e comissões são calculadas no backend e personalizadas pelo perfil: funcionário vê os próprios dados, supervisor vê suas equipes, e gerente/administrador veem a empresa.
-- Alertas inteligentes são atualizados com base no prazo e ritmo da meta, taxa de cancelamentos e concentração de receita por produto. Alertas de desenvolvimento incluem práticas do conteúdo comercial e permitem pedir um exemplo à IA.
+- Alertas inteligentes acompanham prazo e ritmo da meta. Alertas de desenvolvimento incluem práticas do conteúdo comercial e permitem pedir um exemplo à IA; não há alertas de cancelamento ou produto porque essas dimensões não existem na fonte.
 - A IA responde perguntas sobre indicadores e vendas no escopo do perfil selecionado; orientações comerciais usam Gemini quando há chave e consultam a base de conhecimento e exemplos relevantes. Links internos abrem a tela correspondente e mantêm a conversa no modal flutuante. Cada resposta pode receber avaliação humana.
 - A área de especialização fica disponível somente ao perfil gerente. Permite cadastrar produtos e associar um ou mais produtos a uma especialização com público, diferenciais, limitações, perguntas e orientação comercial.
 - Conteúdo de referência cobre as sete etapas de venda adaptativa, SPIN, Challenger e situações de cliente; o assistente oferece orientação, mas não avalia automaticamente funcionários.
@@ -99,6 +103,8 @@ CSV esperado: `external_id,seller_email,team,product_sku,amount,sold_at,customer
 ## Dados e limites
 
 O banco relacional cobre empresas, equipes, membros, produtos, especializações, metas, vendas, alertas, artigos de conhecimento, conversas, mensagens e auditoria. Os cálculos de vendas permanecem no backend. A busca interna da base de treinamento usa palavras-chave como uma versão simples de recuperação contextual; pode evoluir para embeddings e pgvector.
+
+Uma situação pronta para avaliar a dor proposta, com números reais dos CSVs fictícios e limites de inferência, está em [apresentacao/validacao-da-dor.md](apresentacao/validacao-da-dor.md).
 
 Esta versão é uma demonstração. Para produção, troque a seleção de perfil por autenticação e autorização reais, isole as empresas no servidor, use PostgreSQL e segredos por ambiente, revise LGPD/retensão, adicione testes, migrações versionadas, limites de uso e observabilidade. A pesquisa web usa grounding do Google e pode gerar custos conforme os termos e preços do Google.
 

@@ -18,7 +18,7 @@ class SaleReflectionSerializer(serializers.ModelSerializer):
 
 class SaleSerializer(serializers.ModelSerializer):
     seller_name = serializers.CharField(source="seller.get_full_name", read_only=True)
-    product_name = serializers.CharField(source="product.name", read_only=True)
+    product_name = serializers.SerializerMethodField()
     team_name = serializers.CharField(source="team.name", read_only=True)
     commission_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
     reflections = SaleReflectionSerializer(many=True, read_only=True)
@@ -28,8 +28,11 @@ class SaleSerializer(serializers.ModelSerializer):
         fields = [
             "id", "external_id", "customer_name", "seller", "seller_name", "team", "team_name",
             "product", "product_name", "amount", "commission_rate", "commission_amount",
-            "status", "sold_at", "reflections",
+            "sales_count", "pieces", "attendances", "status", "sold_at", "reflections",
         ]
+
+    def get_product_name(self, obj):
+        return obj.product.name if obj.product_id else "Não informado nos dados do desafio"
 
 
 class AlertSerializer(serializers.ModelSerializer):

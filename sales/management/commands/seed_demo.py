@@ -1,166 +1,283 @@
-"""Create a repeatable, fictional company dataset for live presentations."""
+"""Load the fictional Rede Aurora dataset supplied for internship challenge 2."""
+import csv
 from datetime import date, timedelta
 from decimal import Decimal
+from pathlib import Path
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.utils import timezone
 
 from sales.models import (
-    Alert, Company, Goal, KnowledgeArticle, Product, ProductSpecialization,
-    Sale, Team, TeamMembership,
+    Alert, Company, Conversation, DemoIdentity, Goal, KnowledgeArticle,
+    PriorYearStoreSales, Product, ProductSpecialization, Sale, SaleReflection,
+    Team, TeamMembership,
 )
 
 User = get_user_model()
+AS_OF = date.fromisoformat(settings.DEMO_AS_OF_DATE)
+DATA_DIR = Path(settings.BASE_DIR) / "dados" / "desafio-2-dashboards"
+
+
+def read_csv(filename):
+    path = DATA_DIR / filename
+    if not path.is_file():
+        raise CommandError(f"Arquivo do Desafio 2 não encontrado: {path}")
+    with path.open(encoding="utf-8-sig", newline="") as source:
+        return list(csv.DictReader(source))
+
+
+def decimal(value):
+    return Decimal(value or "0").quantize(Decimal("0.01"))
+
+
+def optional_date(value):
+    return date.fromisoformat(value) if value else None
+
+
+def split_name(value):
+    parts = value.strip().split()
+    return (parts[0], " ".join(parts[1:])) if parts else ("Usuário", "")
 
 
 class Command(BaseCommand):
-    help = "Cria ou atualiza os dados fictícios usados na demonstração."
+    help = "Substitui os dados ilustrativos pela base fictícia do Desafio 2 (Rede Aurora)."
 
     @transaction.atomic
     def handle(self, *args, **options):
-        company = Company.objects.filter(name="Índigo Comércio Demonstrativo").first()
-        if company:
-            company.name = "Dashalise Comércio Demonstrativo"
+        stores = read_csv("lojas.csv")
+        roster = read_csv("vendedores.csv")
+        user_rows = read_csv("usuarios.csv")
+        daily_rows = read_csv("vendas_diarias_vendedor.csv")
+        store_goal_rows = read_csv("metas_loja.csv")
+        seller_goal_rows = read_csv("metas_vendedor.csv")
+        prior_rows = read_csv("vendas_loja_ano_anterior.csv")
+        if not all((stores, roster, user_rows, daily_rows, store_goal_rows, seller_goal_rows, prior_rows)):
+            raise CommandError("Um ou mais arquivos do Desafio 2 estão vazios.")
+
+        company = Company.objects.order_by("id").first()
+        if company is None:
+            company = Company.objects.create(name="Rede Aurora")
+        elif company.name != "Rede Aurora":
+            company.name = "Rede Aurora"
             company.save(update_fields=["name"])
-        else:
-            company, _ = Company.objects.get_or_create(name="Dashalise Comércio Demonstrativo")
-        users = {}
-        people = [
-            ("mariana@demo.local", "Mariana", "Costa"),
-            ("rafael@demo.local", "Rafael", "Mendes"),
-            ("camila@demo.local", "Camila", "Rocha"),
-            ("alex@demo.local", "Alex", "Silva"),
-            ("joao@demo.local", "João", "Pedro"),
-            ("beatriz@demo.local", "Beatriz", "Lima"),
-            ("caio@demo.local", "Caio", "Santos"),
-            ("ana@demo.local", "Ana", "Freitas"),
-            ("paula@demo.local", "Paula", "Nunes"),
-            ("lucas@demo.local", "Lucas", "Almeida"),
-            ("nina@demo.local", "Nina", "Ferreira"),
-        ]
-        for email, first, last in people:
+
+        # The demo's prior synthetic facts are replaced; participant-created knowledge
+        # is reseeded below and operational conversation data is reset with the dataset.
+        SaleReflection.objects.filter(company=company).delete()
+        Conversation.objects.filter(company=company).delete()
+        Sale.objects.filter(company=company).delete()
+        PriorYearStoreSales.objects.filter(company=company).delete()
+        Alert.objects.filter(company=company).delete()
+        Goal.objects.filter(company=company).delete()
+        ProductSpecialization.objects.filter(company=company).delete()
+        KnowledgeArticle.objects.filter(company=company).delete()
+        Product.objects.filter(company=company).delete()
+        DemoIdentity.objects.filter(company=company).delete()
+        Team.objects.filter(company=company).delete()
+
+        user_by_email = {}
+        user_by_external_id = {}
+        identity_by_external_id = {}
+        vendor_by_id = {row["vendedor_id"]: row for row in roster}
+        for row in user_rows:
+            first_name, last_name = split_name(row["nome"])
+            email = row["email"].strip().lower()
             user, _ = User.objects.get_or_create(
                 username=email,
-                defaults={"email": email, "first_name": first, "last_name": last},
+                defaults={"email": email, "first_name": first_name, "last_name": last_name},
             )
-            users[email] = user
-
-        aurora, _ = Team.objects.get_or_create(company=company, name="Aurora", defaults={"supervisor": users["rafael@demo.local"]})
-        Team.objects.filter(pk=aurora.pk).update(supervisor=users["rafael@demo.local"])
-        team_specs = [("Horizonte", "paula@demo.local"), ("Vértice", "lucas@demo.local"), ("Órbita", "nina@demo.local")]
-        teams = [aurora]
-        for name, supervisor_email in team_specs:
-            team, _ = Team.objects.get_or_create(
-                company=company, name=name, defaults={"supervisor": users[supervisor_email]}
+            update_fields = []
+            for field, value in (("email", email), ("first_name", first_name), ("last_name", last_name)):
+                if getattr(user, field) != value:
+                    setattr(user, field, value)
+                    update_fields.append(field)
+            vendor = vendor_by_id.get(row["vendedor_id"])
+            termination = optional_date(vendor["data_desligamento"]) if vendor else None
+            is_active = termination is None or termination >= AS_OF
+            if user.is_active != is_active:
+                user.is_active = is_active
+                update_fields.append("is_active")
+            if update_fields:
+                user.save(update_fields=update_fields)
+            identity, _ = DemoIdentity.objects.update_or_create(
+                external_id=row["usuario_id"],
+                defaults={
+                    "company": company,
+                    "user": user,
+                    "source_role": row["papel"],
+                    "scope": row["escopo"],
+                    "whatsapp": row["whatsapp"],
+                    "active_at_demo": is_active,
+                    "hired_at": optional_date(vendor["data_admissao"]) if vendor else None,
+                    "terminated_at": termination,
+                },
             )
-            Team.objects.filter(pk=team.pk).update(supervisor=users[supervisor_email])
-            teams.append(team)
+            user_by_email[email] = user
+            user_by_external_id[row["usuario_id"]] = user
+            identity_by_external_id[row["usuario_id"]] = identity
 
-        assignments = {
-            aurora: ["mariana@demo.local", "joao@demo.local", "beatriz@demo.local", "caio@demo.local", "ana@demo.local"],
-            teams[1]: ["paula@demo.local"],
-            teams[2]: ["lucas@demo.local"],
-            teams[3]: ["nina@demo.local"],
+        vendor_user = {
+            row["vendedor_id"]: user_by_email[row["email"].strip().lower()]
+            for row in user_rows if row["vendedor_id"]
         }
-        for team, members in assignments.items():
-            for email in members:
-                TeamMembership.objects.get_or_create(team=team, user=users[email])
+        # The roster keeps sellers who left during the sample window, while the
+        # user file only includes people still eligible to receive a dashboard.
+        # Give former staff an internal, inactive identity so their dated sales
+        # remain part of store/regional totals without exposing them as active users.
+        for row in roster:
+            vendor_id = row["vendedor_id"]
+            if vendor_id in vendor_user:
+                continue
+            first_name, last_name = split_name(row["nome"])
+            email = f"historico.{vendor_id.lower()}@aurora.example"
+            person, _ = User.objects.get_or_create(
+                username=email,
+                defaults={"email": email, "first_name": first_name, "last_name": last_name, "is_active": False},
+            )
+            DemoIdentity.objects.update_or_create(
+                external_id=f"HIST-{vendor_id}",
+                defaults={
+                    "company": company,
+                    "user": person,
+                    "source_role": "vendedor_historico",
+                    "scope": vendor_id,
+                    "active_at_demo": False,
+                    "hired_at": optional_date(row["data_admissao"]),
+                    "terminated_at": optional_date(row["data_desligamento"]),
+                },
+            )
+            vendor_user[vendor_id] = person
+        regional_by_name = {
+            user.get_full_name().casefold(): user
+            for user in user_by_email.values()
+            if user.demo_identity.source_role == "regional"
+        }
+        manager_by_vendor_id = {
+            row["vendedor_id"]: vendor_user[row["vendedor_id"]]
+            for row in roster
+            if row["cargo"] == "gerente" and row["vendedor_id"] in vendor_user
+        }
 
-        products = []
-        for sku, name in [("BAS-01", "Plano Essencial"), ("PRO-02", "Plano Pro"), ("ENT-03", "Pacote Enterprise"), ("ADD-04", "Módulo Analytics")]:
-            product, _ = Product.objects.get_or_create(company=company, sku=sku, defaults={"name": name})
-            products.append(product)
-
-        default_guidance = [
-            ("Planos digitais", "Assinaturas e serviços digitais", products[:2],
-             "Pequenas equipes que precisam organizar processos e acompanhar resultados.",
-             "Compare limites de uso, suporte e recursos incluídos; conecte cada benefício a uma necessidade confirmada.",
-             "Não prometa integrações ou recursos que não estejam descritos no catálogo atualizado.",
-             "Como sua equipe trabalha hoje? Quantas pessoas usarão a plataforma? Qual resultado quer melhorar?",
-             "Investigue antes de recomendar. Demonstre um recurso relevante e explique limites, preço e próximos passos com clareza."),
-            ("Soluções empresariais", "Tecnologia para empresas", [products[2], products[3]],
-             "Empresas que avaliam segurança, escala, integrações e decisão compartilhada.",
-             "Mapeie os critérios técnicos e as pessoas envolvidas; apresente evidências e um plano de implantação realista.",
-             "Não afirme conformidade, SLA ou integração sem documentação aprovada.",
-             "Que sistemas precisam conversar? Quem aprova a solução? Como será medido o sucesso?",
-             "Use perguntas consultivas, esclareça dependências e proponha uma validação técnica antes da decisão."),
-        ]
-        for title, category, linked_products, audience, differentiators, limitations, questions, guidance in default_guidance:
-            profile, _ = ProductSpecialization.objects.get_or_create(
+        teams = {}
+        store_by_id = {row["loja_id"]: row for row in stores}
+        for row in stores:
+            regional_manager = regional_by_name.get(row["gerente_regional"].casefold())
+            manager = next(
+                (manager_by_vendor_id[person["vendedor_id"]] for person in roster
+                 if person["loja_id"] == row["loja_id"] and person["cargo"] == "gerente"
+                 and person["vendedor_id"] in manager_by_vendor_id),
+                None,
+            )
+            team = Team.objects.create(
                 company=company,
-                title=title,
-                defaults={
-                    "category": category,
-                    "audience": audience,
-                    "differentiators": differentiators,
-                    "limitations": limitations,
-                    "recommended_questions": questions,
-                    "sales_guidance": guidance,
-                },
+                name=row["nome"],
+                external_id=row["loja_id"],
+                city=row["cidade"],
+                state=row["uf"],
+                region_code=row["regional_id"],
+                region_name=row["regional"],
+                regional_manager_name=row["gerente_regional"],
+                franchisee=row["franqueado"],
+                store_type=row["tipo"],
+                opened_at=optional_date(row["inauguracao"]),
+                opens_sunday=row["abre_domingo"].strip().casefold() == "sim",
+                supervisor=regional_manager,
+                manager=manager,
             )
-            profile.products.set(linked_products)
+            teams[row["loja_id"]] = team
 
-        today = timezone.localdate()
-        start = today.replace(day=1)
-        end = today
-        month_end = (start.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
-        goal_specs = [
-            (Goal.Scope.USER, users["mariana@demo.local"], None, Decimal("40000.00")),
-            (Goal.Scope.TEAM, None, aurora, Decimal("38000.00")),
-            (Goal.Scope.COMPANY, None, None, Decimal("120000.00")),
-        ]
-        for scope, user, team, target in goal_specs:
-            Goal.objects.update_or_create(
-                company=company, scope=scope, user=user, team=team,
-                period_start=start, defaults={"period_end": month_end, "target_amount": target},
+        memberships = []
+        for row in roster:
+            team = teams.get(row["loja_id"])
+            person = vendor_user.get(row["vendedor_id"])
+            if team and person:
+                memberships.append(TeamMembership(team=team, user=person))
+        TeamMembership.objects.bulk_create(memberships, ignore_conflicts=True, batch_size=1000)
+
+        for row in store_goal_rows:
+            team = teams[row["loja_id"]]
+            period_start = date.fromisoformat(f"{row['mes']}-01")
+            month_end = (period_start.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+            Goal.objects.create(
+                company=company, scope=Goal.Scope.TEAM, team=team,
+                period_start=period_start, period_end=month_end,
+                target_amount=decimal(row["meta_valor"]),
             )
-
-        for email in ("mariana@demo.local", "joao@demo.local", "beatriz@demo.local", "caio@demo.local", "ana@demo.local", "paula@demo.local", "lucas@demo.local", "nina@demo.local"):
-            Goal.objects.update_or_create(
-                company=company, scope=Goal.Scope.USER, user=users[email], team=None,
-                period_start=start,
-                defaults={"period_end": month_end, "target_amount": Decimal("40000.00") if email == "mariana@demo.local" else Decimal("30000.00")},
+        for row in seller_goal_rows:
+            person = vendor_user.get(row["vendedor_id"])
+            team = teams.get(row["loja_id"])
+            if not person or not team:
+                continue
+            period_start = date.fromisoformat(f"{row['mes']}-01")
+            month_end = (period_start.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+            Goal.objects.create(
+                company=company, scope=Goal.Scope.USER, user=person,
+                period_start=period_start, period_end=month_end,
+                target_amount=decimal(row["meta_valor"]),
             )
-
-        sale_specs = [
-            ("M-001", "mariana@demo.local", products[1], "8450.00", 2),
-            ("M-002", "mariana@demo.local", products[0], "6280.00", 4),
-            ("M-003", "mariana@demo.local", products[2], "5910.00", 7),
-            ("M-004", "mariana@demo.local", products[1], "4360.00", 9),
-            ("M-005", "mariana@demo.local", products[3], "3740.00", 11),
-            ("A-006", "joao@demo.local", products[1], "6280.00", 5),
-            ("A-007", "beatriz@demo.local", products[2], "5910.00", 8),
-            ("A-008", "caio@demo.local", products[0], "4360.00", 10),
-            ("H-009", "paula@demo.local", products[2], "7280.00", 4),
-            ("V-010", "lucas@demo.local", products[0], "5150.00", 6),
-            ("O-011", "nina@demo.local", products[1], "6890.00", 8),
-        ]
-        for external_id, email, product, amount, day in sale_specs:
-            sold_at = start.replace(day=min(day, end.day))
-            Sale.objects.get_or_create(
-                company=company, external_id=external_id,
-                defaults={
-                    "seller": users[email], "team": aurora if email in assignments[aurora] else next(
-                        team for team, members in assignments.items() if email in members
-                    ),
-                    "product": product, "amount": Decimal(amount), "sold_at": sold_at,
-                    "customer_name": "Cliente demonstrativo", "commission_rate": Decimal("5.00"),
-                },
+        company_targets = {}
+        for row in store_goal_rows:
+            company_targets[row["mes"]] = company_targets.get(row["mes"], Decimal("0")) + decimal(row["meta_valor"])
+        for month, target in company_targets.items():
+            period_start = date.fromisoformat(f"{month}-01")
+            month_end = (period_start.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+            Goal.objects.create(
+                company=company, scope=Goal.Scope.COMPANY,
+                period_start=period_start, period_end=month_end, target_amount=target,
             )
 
-        alert_specs = [
-            ("Meta em ritmo de atenção", "Caio Santos está abaixo do ritmo necessário para sua meta.", Alert.Severity.WARNING, aurora, users["caio@demo.local"]),
-            ("Oportunidade de crescimento", "O Plano Pro apresenta procura crescente neste período.", Alert.Severity.INFO, aurora, None),
-            ("Queda incomum de conversão", "A equipe Vértice requer uma revisão dos últimos resultados.", Alert.Severity.WARNING, teams[2], None),
-        ]
-        for title, message, severity, team, user in alert_specs:
-            Alert.objects.get_or_create(
-                company=company, title=title,
-                defaults={"message": message, "severity": severity, "team": team, "user": user},
-            )
+        sales = []
+        for row in daily_rows:
+            person = vendor_user.get(row["vendedor_id"])
+            team = teams.get(row["loja_id"])
+            if not person or not team:
+                continue
+            sold_at = date.fromisoformat(row["data"])
+            sales.append(Sale(
+                company=company,
+                seller=person,
+                team=team,
+                product=None,
+                external_id=f"daily:{row['vendedor_id']}:{row['data']}",
+                customer_name="",
+                amount=decimal(row["valor_vendido"]),
+                commission_rate=Decimal("3.00"),
+                sales_count=int(row["vendas"] or 0),
+                pieces=int(row["pecas"] or 0),
+                attendances=int(row["atendimentos"] or 0),
+                sold_at=sold_at,
+                status=Sale.Status.VALID,
+            ))
+        Sale.objects.bulk_create(sales, batch_size=1000)
 
+        prior_sales = []
+        for row in prior_rows:
+            team = teams.get(row["loja_id"])
+            if not team:
+                continue
+            prior_sales.append(PriorYearStoreSales(
+                company=company,
+                team=team,
+                sold_at=date.fromisoformat(row["data"]),
+                amount=decimal(row["valor_vendido"]),
+                sales_count=int(row["vendas"] or 0),
+                pieces=int(row["pecas"] or 0),
+            ))
+        PriorYearStoreSales.objects.bulk_create(prior_sales, batch_size=1000)
+        self._seed_sales_method(company)
+
+        self.stdout.write(self.style.SUCCESS(
+            f"Rede Aurora carregada: {len(teams)} lojas, {len(user_rows)} usuários, "
+            f"{len(sales)} registros vendedor-dia, {len(store_goal_rows) + len(seller_goal_rows) + len(company_targets)} metas "
+            f"e {len(prior_sales)} registros de comparação anual."
+        ))
+        self.stdout.write("Perfis de demonstração: Bianca Rocha (funcionária), Patrícia Lemos (regional), Diego Furtado (gerente) e Marcos Albuquerque (diretoria).")
+        self.stdout.write("Observação: os arquivos não incluem catálogo de produtos nem cancelamentos.")
+
+    @staticmethod
+    def _seed_sales_method(company):
         knowledge = [
             ("observe", "1 · Observar e preparar", "venda", "Prepare-se sem presumir: identifique se o cliente é novo ou recorrente, o produto que procura e o contexto disponível. Abra a conversa com naturalidade. O perfil de compra descreve a situação atual e não define a personalidade do cliente."),
             ("investigate", "2 · Investigar com SPIN", "spin", "SPIN: Situação — entenda como o cliente está hoje; Problema — descubra dificuldades; Implicação — explore consequências com respeito; Necessidade de solução — ajude o cliente a expressar o resultado que deseja. Use perguntas abertas e escuta ativa. Não apresente produto antes de compreender a necessidade. Confirme hipóteses em vez de presumir intenções."),
@@ -177,6 +294,3 @@ class Command(BaseCommand):
                 title=title,
                 defaults={"stage": stage, "category": category, "content": content, "active": True},
             )
-
-        self.stdout.write(self.style.SUCCESS("Dados demonstrativos criados/atualizados com sucesso."))
-        self.stdout.write("Perfis: funcionario, supervisor, gerente e administrador (sem senha; modo apresentação).")

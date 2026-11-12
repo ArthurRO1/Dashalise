@@ -22,6 +22,23 @@ class Team(models.Model):
         blank=True,
         related_name="supervised_teams",
     )
+    manager = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="managed_stores",
+    )
+    external_id = models.CharField(max_length=24, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=2, blank=True)
+    region_code = models.CharField(max_length=12, blank=True)
+    region_name = models.CharField(max_length=100, blank=True)
+    regional_manager_name = models.CharField(max_length=140, blank=True)
+    franchisee = models.CharField(max_length=140, blank=True)
+    store_type = models.CharField(max_length=24, blank=True)
+    opened_at = models.DateField(null=True, blank=True)
+    opens_sunday = models.BooleanField(default=False)
 
     class Meta:
         unique_together = [("company", "name")]
@@ -38,6 +55,36 @@ class TeamMembership(models.Model):
 
     class Meta:
         unique_together = [("team", "user")]
+
+
+class DemoIdentity(models.Model):
+    """Fictional identity and access scope supplied by the internship challenge."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="demo_identities")
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="demo_identity")
+    external_id = models.CharField(max_length=24, unique=True)
+    source_role = models.CharField(max_length=24)
+    scope = models.CharField(max_length=160)
+    whatsapp = models.CharField(max_length=40, blank=True)
+    active_at_demo = models.BooleanField(default=True)
+    hired_at = models.DateField(null=True, blank=True)
+    terminated_at = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["external_id"]
+
+
+class PriorYearStoreSales(models.Model):
+    """Store-level daily comparison supplied by the challenge (364-day offset)."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="prior_year_sales")
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="prior_year_sales")
+    sold_at = models.DateField()
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    sales_count = models.PositiveIntegerField(default=0)
+    pieces = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = [("company", "team", "sold_at")]
+        ordering = ["sold_at"]
 
 
 class Product(models.Model):
@@ -105,11 +152,14 @@ class Sale(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="sales")
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="sales")
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="sales")
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="sales")
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="sales", null=True, blank=True)
     external_id = models.CharField(max_length=100, blank=True)
     customer_name = models.CharField(max_length=140, blank=True)
     amount = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
-    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=5)
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=3)
+    sales_count = models.PositiveIntegerField(default=1)
+    pieces = models.PositiveIntegerField(default=0)
+    attendances = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.VALID)
     sold_at = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)

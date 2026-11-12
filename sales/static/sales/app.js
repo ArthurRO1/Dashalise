@@ -1,8 +1,8 @@
 const profiles = {
-  funcionario: { name: "Mariana Costa", first: "Mariana", initials: "MC", role: "Funcionária" },
-  supervisor: { name: "Rafael Mendes", first: "Rafael", initials: "RM", role: "Supervisor" },
-  gerente: { name: "Camila Rocha", first: "Camila", initials: "CR", role: "Gerente" },
-  administrador: { name: "Alex Silva", first: "Alex", initials: "AS", role: "Administrador" },
+  funcionario: { name: "Bianca Rocha", first: "Bianca", initials: "BR", role: "Funcionária" },
+  supervisor: { name: "Patrícia Lemos", first: "Patrícia", initials: "PL", role: "Gerente regional" },
+  gerente: { name: "Diego Furtado", first: "Diego", initials: "DF", role: "Gerente de loja" },
+  administrador: { name: "Marcos Albuquerque", first: "Marcos", initials: "MA", role: "Diretoria" },
 };
 
 const stages = [
@@ -289,7 +289,7 @@ async function startSaleChat(saleId, stage = "observe") {
   const chat = await newConversation({
     saleId: Number(saleId),
     stage,
-    title: sale ? `${sale.product_name} · ${sale.customer_name || "Venda"}` : `Venda #${saleId}`,
+    title: sale ? `Resumo diário · ${sale.sold_at}` : `Resumo diário #${saleId}`,
   });
   if (chat) {
     navigate("inicio");
@@ -385,22 +385,22 @@ function renderSalesPage() {
   const rows = state.sales.map((sale) => `
     <tr id="sale-row-${sale.id}">
       <td><strong>${escapeHtml(sale.seller_name)}</strong><small class="cell-subtitle">${escapeHtml(sale.team_name || "Equipe")}</small></td>
-      <td>${escapeHtml(sale.product_name)}</td>
+      <td>Resumo diário agregado</td>
       <td><strong>${money.format(Number(sale.amount))}</strong></td>
       <td>${new Date(`${sale.sold_at}T12:00:00`).toLocaleDateString("pt-BR")}</td>
-      <td><span class="status ${sale.status}">${escapeHtml(sale.status === "valid" ? "Válida" : sale.status === "pending" ? "Pendente" : "Cancelada")}</span></td>
-      <td><button class="table-action" data-sale-chat="${sale.id}">Conversar sobre esta venda ↗</button></td>
+      <td>${sale.sales_count} vendas · ${sale.pieces} peças · ${sale.attendances} atendimentos</td>
+      <td><button class="table-action" data-sale-chat="${sale.id}">Consultar este resumo ↗</button></td>
       <td><div class="reflection-cell">${sale.reflections?.length ? `<strong>${escapeHtml(sale.reflections[0].stage_label)}</strong><small>${escapeHtml(sale.reflections[0].challenge)}</small>` : '<small>Nenhum relato registrado</small>'}<button class="table-action" data-reflection-sale="${sale.id}">${sale.reflections?.length ? "Adicionar aprendizado" : "Registrar dificuldade"}</button></div></td>
     </tr>`).join("");
-  return `${pageHeader("Vendas", state.selectedEmployee ? `Vendas individuais de ${state.selectedEmployee.name}. Abra uma conversa para consultar uma oportunidade.` : "Consulte os registros comerciais e abra uma conversa vinculada a uma venda.")}
+  return `${pageHeader("Vendas", state.selectedEmployee ? `Vendas individuais de ${state.selectedEmployee.name}. Abra um resumo diário para consultar o contexto disponível.` : "Consulte os resumos diários de valor, vendas, peças e atendimentos; os arquivos não detalham cada transação.")}
     <div class="metric-grid">
-      <article class="metric-card"><span>Vendas exibidas</span><strong>${state.sales.length}</strong></article>
+      <article class="metric-card"><span>Dias de trabalho exibidos</span><strong>${state.sales.length}</strong></article>
       <article class="metric-card"><span>Receita válida</span><strong>${money.format(Number(state.summary?.revenue || 0))}</strong></article>
       <article class="metric-card"><span>Meta do período</span><strong>${money.format(Number(state.summary?.goal || 0))}</strong></article>
       <article class="metric-card"><span>Comissão calculada</span><strong>${money.format(Number(state.summary?.commission || 0))}</strong></article>
     </div>
-    <section class="panel"><header class="panel-heading"><div><h2>Vendas recentes</h2><p>O escopo acompanha o papel selecionado na demonstração.</p></div><button class="button" id="salesExport">↓ Exportar CSV</button></header>
-      <div class="table-scroll"><table><thead><tr><th>Vendedor</th><th>Produto</th><th>Valor</th><th>Data</th><th>Status</th><th>Conversa</th><th>Aprendizado</th></tr></thead><tbody>${rows || '<tr><td colspan="7" class="empty-state">Não há vendas neste período.</td></tr>'}</tbody></table></div>
+    <section class="panel"><header class="panel-heading"><div><h2>Resumos diários recentes</h2><p>Cada linha representa um vendedor em um dia de trabalho, como fornecido pelo desafio.</p></div><button class="button" id="salesExport">↓ Exportar CSV</button></header>
+      <div class="table-scroll"><table><thead><tr><th>Vendedor / loja</th><th>Detalhe de produto</th><th>Receita no dia</th><th>Data</th><th>Atividade</th><th>Conversa</th><th>Aprendizado</th></tr></thead><tbody>${rows || '<tr><td colspan="7" class="empty-state">Não há vendas neste período.</td></tr>'}</tbody></table></div>
     </section>`;
 }
 
@@ -408,7 +408,7 @@ function renderMetricsPage() {
   const summary = state.summary || {};
   return `${pageHeader("Metas e resultados", "Indicadores calculados no servidor a partir das vendas válidas.")}
     ${renderGoalProgress(summary)}
-    <section class="panel"><header class="panel-heading"><div><h2>Comissões e critérios</h2><p>Cancelamentos não entram no cálculo; os valores são ilustrativos.</p></div></header>
+    <section class="panel"><header class="panel-heading"><div><h2>Comissões e critérios</h2><p>3% do valor vendido e prêmio de R$ 300 quando a meta mensal individual é atingida, conforme o briefing.</p></div></header>
       <div class="panel-body metric-grid metric-grid-three"><article class="metric-card"><span>Comissão acumulada</span><strong>${money.format(Number(summary.commission || 0))}</strong></article><article class="metric-card"><span>Pedidos válidos</span><strong>${summary.orders || 0}</strong></article><article class="metric-card"><span>Ticket médio</span><strong>${money.format(Number(summary.average_order_value || 0))}</strong></article></div>
     </section>`;
 }
@@ -455,6 +455,10 @@ function renderTrendChart(rows) {
 function renderIndicatorsPage() {
   const summary = state.summary || {};
   const topProducts = summary.top_products || [];
+  const previousYear = summary.previous_year;
+  const yearComparison = previousYear
+    ? `<p>Na loja/região/rede visível, a receita foi ${money.format(Number(summary.revenue || 0))}; no período equivalente do ano anterior (mesmo dia da semana) foi ${money.format(Number(previousYear.revenue || 0))}${previousYear.change_percent === null ? ". Não há base anterior suficiente para calcular a variação." : `, variação de ${percent.format(Number(previousYear.change_percent))}%.`}</p>`
+    : "";
   const maxProductRevenue = Math.max(...topProducts.map((product) => Number(product.amount || 0)), 1);
   const products = topProducts.map((product) => `<div class="product-bar-row"><div class="product-bar-label"><strong>${escapeHtml(product.product__name)}</strong><span>${money.format(Number(product.amount || 0))} · ${product.orders} pedidos</span></div><div class="product-bar-track"><i style="width:${Math.max(4, Number(product.amount || 0) / maxProductRevenue * 100)}%"></i></div></div>`).join("");
   const roleLabel = state.selectedEmployee ? "Funcionário" : profiles[state.role].role;
@@ -466,12 +470,12 @@ function renderIndicatorsPage() {
       <article class="metric-card"><span>Pedidos válidos</span><strong>${Number(summary.orders || 0).toLocaleString("pt-BR")}</strong></article>
       <article class="metric-card"><span>Ticket médio</span><strong>${money.format(Number(summary.average_order_value || 0))}</strong></article>
     </div>
-    <details class="secondary-metrics"><summary>Ver outros indicadores</summary><div class="metric-grid metric-grid-three"><article class="metric-card"><span>Taxa de cancelamento</span><strong>${percent.format(Number(summary.cancellation_rate_percent || 0))}%</strong></article><article class="metric-card"><span>Projeção de fechamento</span><strong>${summary.closing_projection ? money.format(Number(summary.closing_projection)) : "—"}</strong></article><article class="metric-card"><span>Média diária no período</span><strong>${money.format(Number(summary.daily_average || 0))}</strong></article></div></details>
+    <details class="secondary-metrics"><summary>Ver outros indicadores</summary><div class="metric-grid"><article class="metric-card"><span>Conversão (vendas ÷ atendimentos)</span><strong>${percent.format(Number(summary.conversion_rate_percent || 0))}%</strong></article><article class="metric-card"><span>Peças por venda (P.A.)</span><strong>${percent.format(Number(summary.pieces_per_sale || 0))}</strong></article><article class="metric-card"><span>Preço médio por peça</span><strong>${money.format(Number(summary.average_item_price || 0))}</strong></article><article class="metric-card"><span>Cancelamentos</span><strong>Sem dado na base</strong></article><article class="metric-card"><span>Projeção de fechamento</span><strong>${summary.closing_projection ? money.format(Number(summary.closing_projection)) : "—"}</strong></article><article class="metric-card"><span>Média diária no período</span><strong>${money.format(Number(summary.daily_average || 0))}</strong></article></div></details>
     <div class="analytics-grid">
     <section class="panel"><header class="panel-heading"><div><h2>Evolução das vendas</h2><p>Receita diária válida no período selecionado</p></div></header><div class="panel-body">${renderTrendChart(summary.sales_by_day || [])}</div></section>
-      <section class="panel"><header class="panel-heading"><div><h2>Produtos por receita</h2><p>Ranking dentro do seu escopo</p></div></header><div class="panel-body product-bars">${products || '<p class="empty-state">Sem vendas de produto neste período.</p>'}</div></section>
+      <section class="panel"><header class="panel-heading"><div><h2>Produtos por receita</h2><p>O conjunto de dados não informa o produto de cada venda.</p></div></header><div class="panel-body product-bars">${products || '<p class="empty-state">Não é possível criar um ranking de produtos sem dados por produto. Cadastre o catálogo para especializar a IA; vincular o histórico exigiria uma fonte de vendas detalhada.</p>'}</div></section>
     </div>
-    <section class="panel insight-summary"><header class="panel-heading"><div><h2>Leitura dos indicadores</h2><p>Resumo objetivo para orientar a próxima consulta</p></div><button class="button" data-go="alertas">Ver alertas (${state.alerts.filter((alert) => !alert.read_at).length})</button></header><div class="panel-body"><p>${Number(summary.goal || 0) ? `${state.selectedEmployee ? `${escapeHtml(state.selectedEmployee.name)} está` : "Você está"} em <strong>${percent.format(Number(summary.goal_progress_percent || 0))}%</strong> da meta. ${Number(summary.remaining || 0) ? `Faltam <strong>${money.format(Number(summary.remaining))}</strong> para atingir o objetivo.` : "A meta foi alcançada no período."}` : "Ainda não há meta cadastrada para este perfil e período."} ${summary.daily_goal_pace ? `O ritmo médio necessário é <strong>${money.format(Number(summary.daily_goal_pace))} por dia</strong>.` : ""}</p></div></section>`;
+    <section class="panel insight-summary"><header class="panel-heading"><div><h2>Leitura dos indicadores</h2><p>Resumo objetivo para orientar a próxima consulta</p></div><button class="button" data-go="alertas">Ver alertas (${state.alerts.filter((alert) => !alert.read_at).length})</button></header><div class="panel-body"><p>${Number(summary.goal || 0) ? `${state.selectedEmployee ? `${escapeHtml(state.selectedEmployee.name)} está` : "O perfil selecionado está"} em <strong>${percent.format(Number(summary.goal_progress_percent || 0))}%</strong> da meta. ${Number(summary.remaining || 0) ? `Faltam <strong>${money.format(Number(summary.remaining))}</strong> para atingir o objetivo.` : "A meta foi alcançada no período."}` : "Ainda não há meta cadastrada para este perfil e período."} ${summary.daily_goal_pace ? `O ritmo médio necessário é <strong>${money.format(Number(summary.daily_goal_pace))} por dia</strong>.` : ""}</p>${yearComparison}</div></section>`;
 }
 
 async function renderTeamsPage() {
@@ -505,7 +509,7 @@ async function renderTeamsPage() {
           const goal = members.reduce((sum, person) => sum + Number(person.goal || 0), 0);
           const orders = members.reduce((sum, person) => sum + Number(person.orders || 0), 0);
           const progress = goal ? revenue / goal * 100 : 0;
-          const cards = visible.map((person) => `<button class="person-card" type="button" data-open-employee="${person.id}"><span class="person-avatar">${escapeHtml(person.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</span><span class="person-info"><strong>${escapeHtml(person.name)}</strong><small>${person.orders} vendas válidas · ${person.cancelled} canceladas</small><span class="person-progress"><i style="width:${Math.min(100, Number(person.goal_progress_percent || 0))}%"></i></span></span><span class="person-result"><strong>${money.format(Number(person.revenue || 0))}</strong><small>${person.goal ? `${percent.format(Number(person.goal_progress_percent || 0))}% da meta` : "Sem meta individual"}</small></span><span class="person-open">Ver painel ↗</span></button>`).join("");
+          const cards = visible.map((person) => `<button class="person-card" type="button" data-open-employee="${person.id}"><span class="person-avatar">${escapeHtml(person.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</span><span class="person-info"><strong>${escapeHtml(person.name)}</strong><small>${person.orders} vendas no período · conversão ${percent.format(Number(person.conversion_rate_percent || 0))}%</small><span class="person-progress"><i style="width:${Math.min(100, Number(person.goal_progress_percent || 0))}%"></i></span></span><span class="person-result"><strong>${money.format(Number(person.revenue || 0))}</strong><small>${person.goal ? `${percent.format(Number(person.goal_progress_percent || 0))}% da meta` : "Sem meta individual"}</small></span><span class="person-open">Ver painel ↗</span></button>`).join("");
           return `<section class="team-performance-group"><header><div><strong>${escapeHtml(teamName)}</strong><small>${members.length} ${members.length === 1 ? "vendedor" : "vendedores"} · ${orders} vendas válidas</small></div><div class="team-performance-total"><strong>${money.format(revenue)}</strong><small>${goal ? `${percent.format(progress)}% da meta somada` : "Sem metas individuais"}</small></div></header>${cards}</section>`;
         }).join("");
         peopleList.innerHTML = groups || '<p class="empty-state">Nenhuma pessoa ou equipe corresponde à busca.</p>';
@@ -517,7 +521,7 @@ async function renderTeamsPage() {
         if (button) openEmployeeDashboard(Number(button.dataset.openEmployee));
       });
     } else {
-      target.innerHTML = teams.map((team) => `<article class="team-card"><div><strong>${escapeHtml(team.name)}</strong><p>Supervisor: ${escapeHtml(team.supervisor || "Não definido")}</p><small>${team.members.length} integrantes · ${team.members.map((member) => escapeHtml(member.name)).join(", ")}</small></div></article>`).join("") || '<p class="empty-state">Nenhuma equipe disponível neste perfil.</p>';
+      target.innerHTML = teams.map((team) => `<article class="team-card"><div><strong>${escapeHtml(team.external_id ? `${team.external_id} · ${team.name}` : team.name)}</strong><p>${escapeHtml([team.city, team.state, team.region, team.store_type].filter(Boolean).join(" · "))}</p><small>${team.members.length} integrantes · gerente ${escapeHtml(team.manager || "não informado")} · supervisão ${escapeHtml(team.supervisor || "não informada")}</small></div></article>`).join("") || '<p class="empty-state">Nenhuma equipe disponível neste perfil.</p>';
     }
   } catch (error) { notify(error.message); }
 }
@@ -542,9 +546,9 @@ function selectEmployee(employee) {
 async function renderProductsPage() {
   const page = document.getElementById("pageView");
   const isManager = state.role === "gerente" && !state.selectedEmployee;
-  page.innerHTML = `${pageHeader("Produtos", "Catálogo e desempenho dos produtos da empresa.")}
+  page.innerHTML = `${pageHeader("Produtos", "Cadastre referências para a IA; a base histórica do Desafio 2 não informa o produto de cada venda.")}
     ${isManager ? `<section class="panel"><header class="panel-heading"><div><h2>Novo produto</h2><p>Cadastre produtos para associá-los às especializações da IA.</p></div></header><form class="panel-body form-grid" id="productForm"><div class="form-field"><label>Nome do produto</label><input name="name" required /></div><div class="form-field"><label>SKU ou código</label><input name="sku" required /></div><div class="form-field"><label>Categoria</label><input name="category" /></div><div class="form-field"><label>Descrição</label><input name="description" /></div><div class="form-field full"><button class="button primary" type="submit">Cadastrar produto</button></div></form></section>` : ""}
-    <section class="panel"><header class="panel-heading"><div><h2>Catálogo comercial</h2><p>Dados e vendas por produto</p></div></header><div class="table-scroll"><table><thead><tr><th>Produto</th><th>SKU</th><th>Receita nas vendas visíveis</th><th>Pedidos</th></tr></thead><tbody id="productsBody"><tr><td colspan="4" class="empty-state">Carregando produtos…</td></tr></tbody></table></div></section>`;
+    <section class="panel"><header class="panel-heading"><div><h2>Catálogo de referência</h2><p>Os itens cadastrados aqui ainda não podem ser associados aos resumos de vendas importados.</p></div></header><div class="table-scroll"><table><thead><tr><th>Produto</th><th>SKU</th><th>Receita comprovada na base</th><th>Pedidos comprovados</th></tr></thead><tbody id="productsBody"><tr><td colspan="4" class="empty-state">Carregando produtos…</td></tr></tbody></table></div></section>`;
   if (isManager) document.getElementById("productForm").addEventListener("submit", createProduct);
   try {
     const targetQuery = state.selectedEmployee ? `?employee_id=${state.selectedEmployee.id}` : "";
@@ -707,7 +711,7 @@ function openReflectionDialog(saleId) {
   if (!sale) return;
   state.reflectionSaleId = saleId;
   document.getElementById("reflectionForm").reset();
-  document.getElementById("reflectionContext").textContent = `Venda #${saleId} · ${sale.seller_name} · ${sale.product_name}. Registre uma dificuldade ou algo que queira praticar.`;
+  document.getElementById("reflectionContext").textContent = `Resumo diário #${saleId} · ${sale.seller_name} · ${sale.sold_at}. Registre uma dificuldade ou algo que queira praticar.`;
   document.getElementById("reflectionDialog").showModal();
   document.getElementById("reflectionStage").focus();
 }
