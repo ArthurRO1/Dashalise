@@ -1,0 +1,301 @@
+conteudo_id,titulo,tema,formato,duracao_min,publico,nivel,pre_requisito,colecao,tem_quiz,publicado_em
+CT001,Verão 2027: a coleção em 5 minutos,produto,vídeo,5,todos,básico,,Verão 2027,sim,2026-11-05
+CT002,Verão 2027: recado da estilista,produto,vídeo,18,todos,básico,,Verão 2027,não,2026-11-05
+CT003,Verão 2027: guia de produtos,produto,pdf,35,todos,básico,,Verão 2027,não,2026-11-05
+CT004,Verão 2027: os tecidos da estação,produto,vídeo,7,todos,básico,,Verão 2027,não,2026-11-05
+CT005,Verão 2027: quiz da coleção,produto,quiz,5,todos,básico,,Verão 2027,sim,2026-11-05
+CT006,Verão 2027: vitrine de lançamento,produto,pdf,8,gerente,básico,,Verão 2027,não,2026-11-05
+CT007,Verão 2027: peças-chave para vender junto,produto,guia rápido,3,todos,básico,,Verão 2027,não,2026-11-05
+CT008,Verão 2027: tabela de medidas e caimento,produto,pdf,6,todos,básico,,Verão 2027,não,2026-11-05
+CT009,Verão 2027: argumentos de venda por peça,produto,guia rápido,5,todos,básico,,Verão 2027,não,2026-11-05
+CT010,Verão 2027: perguntas frequentes das clientes,produto,guia rápido,4,todos,básico,,Verão 2027,não,2026-11-05
+CT011,Verão 2027: vestidos: como apresentar,produto,vídeo,4,todos,básico,,Verão 2027,não,2026-11-05
+CT012,Verão 2027: kimonos e saídas de praia,produto,vídeo,4,todos,básico,,Verão 2027,não,2026-11-05
+CT013,Verão 2027: moda praia: provador e trocas,produto,vídeo,6,todos,básico,,Verão 2027,não,2026-11-05
+CT014,Verão 2027: acessórios que completam o look,produto,vídeo,5,todos,básico,,Verão 2027,sim,2026-11-05
+CT015,Inverno 2026: a coleção em 5 minutos,produto,vídeo,5,todos,básico,,Inverno 2026,sim,2026-03-16
+CT016,Inverno 2026: recado da estilista,produto,vídeo,18,todos,básico,,Inverno 2026,não,2026-03-16
+CT017,Inverno 2026: guia de produtos,produto,pdf,35,todos,básico,,Inverno 2026,não,2026-03-16
+CT018,Inverno 2026: os tecidos da estação,produto,vídeo,7,todos,básico,,Inverno 2026,não,2026-03-16
+CT019,Inverno 2026: quiz da coleção,produto,quiz,5,todos,básico,,Inverno 2026,sim,2026-03-16
+CT020,Inverno 2026: vitrine de lançamento,produto,pdf,8,gerente,básico,,Inverno 2026,não,2026-03-16
+CT021,Inverno 2026: peças-chave para vender junto,produto,guia rápido,3,todos,básico,,Inverno 2026,não,2026-03-16
+CT022,Inverno 2026: tabela de medidas e caimento,produto,pdf,6,todos,básico,,Inverno 2026,não,2026-03-16
+CT023,Inverno 2026: argumentos de venda por peça,produto,guia rápido,5,todos,básico,,Inverno 2026,não,2026-03-16
+CT024,Inverno 2026: perguntas frequentes das clientes,produto,guia rápido,4,todos,básico,,Inverno 2026,não,2026-03-16
+CT025,Inverno 2026: tricôs e malhas,produto,vídeo,7,todos,básico,,Inverno 2026,não,2026-03-17
+CT026,Inverno 2026: casacos: como apresentar,produto,vídeo,5,todos,básico,,Inverno 2026,não,2026-03-21
+CT027,Inverno 2026: liquidação de inverno: o que falar,produto,vídeo,5,todos,básico,,Inverno 2026,não,2026-03-19
+CT028,Inverno 2026: sobreposições,produto,vídeo,7,todos,básico,,Inverno 2026,não,2026-03-16
+CT029,Verão 2026: a coleção em 5 minutos,produto,vídeo,5,todos,básico,,Verão 2026,sim,2025-10-20
+CT030,Verão 2026: recado da estilista,produto,vídeo,18,todos,básico,,Verão 2026,não,2025-10-20
+CT031,Verão 2026: guia de produtos,produto,pdf,35,todos,básico,,Verão 2026,não,2025-10-20
+CT032,Verão 2026: os tecidos da estação,produto,vídeo,7,todos,básico,,Verão 2026,não,2025-10-20
+CT033,Verão 2026: quiz da coleção,produto,quiz,5,todos,básico,,Verão 2026,sim,2025-10-20
+CT034,Verão 2026: vitrine de lançamento,produto,pdf,8,gerente,básico,,Verão 2026,não,2025-10-20
+CT035,Verão 2026: peças-chave para vender junto,produto,guia rápido,3,todos,básico,,Verão 2026,não,2025-10-20
+CT036,Verão 2026: tabela de medidas e caimento,produto,pdf,6,todos,básico,,Verão 2026,não,2025-10-20
+CT037,Verão 2026: argumentos de venda por peça,produto,guia rápido,5,todos,básico,,Verão 2026,não,2025-10-20
+CT038,Verão 2026: perguntas frequentes das clientes,produto,guia rápido,4,todos,básico,,Verão 2026,não,2025-10-20
+CT039,Verão 2026: vestidos: como apresentar,produto,vídeo,6,todos,básico,,Verão 2026,não,2025-10-24
+CT040,Verão 2026: moda praia: provador e trocas,produto,vídeo,4,todos,básico,,Verão 2026,não,2025-10-23
+CT041,Tecidos naturais x sintéticos,produto,vídeo,12,todos,intermediário,,,não,2025-04-11
+CT042,Linho: características e cuidados,produto,pdf,20,todos,intermediário,,,não,2023-03-02
+CT043,Viscose: por que amassa,produto,pdf,18,todos,básico,,,não,2025-11-09
+CT044,Malha e tricô: diferenças,produto,guia rápido,3,todos,intermediário,,,não,2023-02-16
+CT045,Jeans: lavagens e modelagens,produto,pdf,27,todos,básico,,,não,2025-09-08
+CT046,"Modelagens: reta, evasê, godê e sereia",produto,vídeo,10,todos,intermediário,,,sim,2024-06-21
+CT047,Caimento por tipo de corpo,produto,vídeo,3,todos,básico,,,sim,2024-02-17
+CT048,Como medir a cliente sem constranger,produto,pdf,24,todos,básico,,,não,2026-01-16
+CT049,Tabela de medidas Aurora,produto,vídeo,5,todos,básico,,,sim,2026-07-17
+CT050,Etiqueta de composição: como ler,produto,vídeo,5,todos,intermediário,,,não,2024-02-14
+CT051,Cuidados de lavagem: o que orientar,produto,pdf,27,todos,intermediário,,,sim,2023-06-25
+CT052,Cores neutras e como combinar,produto,pdf,27,todos,intermediário,,,não,2026-06-17
+CT053,Montando looks completos,produto,pdf,8,todos,intermediário,,,não,2025-06-09
+CT054,Peças coringa do guarda-roupa,produto,vídeo,11,todos,básico,,,não,2023-05-01
+CT055,Moda plus size na Aurora,produto,pdf,29,todos,básico,,,não,2024-05-31
+CT056,"Acessórios: cintos, bolsas e bijuterias",produto,vídeo,11,todos,básico,,,sim,2024-04-04
+CT057,Calçados: numeração e conforto,produto,vídeo,3,todos,intermediário,,,sim,2025-02-15
+CT058,Tendências da estação sem exagero,produto,guia rápido,4,todos,intermediário,,,não,2023-03-29
+CT059,Qualidade Aurora: costura e acabamento,produto,pdf,26,todos,intermediário,,,sim,2024-10-21
+CT060,Defeitos de fabricação: como identificar,produto,guia rápido,3,todos,básico,,,não,2025-12-22
+CT061,Ajustes e barra: o que a loja oferece,produto,vídeo,9,todos,básico,,,não,2026-05-01
+CT062,Linha básica: camisetas e regatas,produto,guia rápido,3,todos,básico,,,não,2024-02-19
+CT063,Alfaiataria feminina,produto,pdf,13,todos,básico,,,não,2026-02-21
+CT064,Moda festa: vestidos longos,produto,vídeo,5,todos,básico,,,não,2025-04-15
+CT065,Sustentabilidade nos tecidos Aurora,produto,guia rápido,5,todos,básico,,,não,2025-04-05
+CT066,Abordagem: os primeiros 30 segundos,atendimento,vídeo,6,todos,básico,,,não,2023-07-31
+CT067,Abordagem: os primeiros 30 segundos (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2025-01-18
+CT068,Abordagem sem ser invasiva,atendimento,vídeo,6,todos,básico,,,não,2025-12-11
+CT069,Abordagem sem ser invasiva (guia rápido),atendimento,guia rápido,2,todos,básico,,,não,2024-11-05
+CT070,Sondagem: perguntas abertas,atendimento,vídeo,5,todos,básico,,,não,2025-01-07
+CT071,Sondagem: perguntas abertas (guia rápido),atendimento,guia rápido,4,todos,básico,,,não,2023-05-16
+CT072,Sondagem: descobrindo a ocasião,atendimento,vídeo,10,todos,básico,,,não,2024-02-29
+CT073,Sondagem: descobrindo a ocasião (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2025-05-18
+CT074,Demonstração: deixar a cliente tocar no tecido,atendimento,vídeo,4,todos,básico,,,não,2023-11-21
+CT075,Demonstração: deixar a cliente tocar no tecido (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2023-12-16
+CT076,Provador: como acompanhar,atendimento,vídeo,7,todos,básico,,,não,2024-03-12
+CT077,Provador: como acompanhar (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2025-05-29
+CT078,Provador: levar a segunda opção,atendimento,vídeo,4,todos,básico,,,não,2023-11-12
+CT079,Provador: levar a segunda opção (guia rápido),atendimento,guia rápido,2,todos,básico,,,não,2026-01-04
+CT080,Objeções: o básico,atendimento,vídeo,7,todos,básico,,,sim,2025-08-28
+CT081,Objeções: o básico (guia rápido),atendimento,guia rápido,4,todos,básico,,,não,2026-10-03
+CT082,"Objeção: ""está caro""",atendimento,vídeo,9,todos,intermediário,CT080,,sim,2024-08-18
+CT083,"Objeção: ""está caro"" (guia rápido)",atendimento,guia rápido,4,todos,intermediário,CT080,,não,2025-04-06
+CT084,"Objeção: ""vou dar uma volta""",atendimento,vídeo,8,todos,intermediário,CT080,,sim,2023-06-18
+CT085,"Objeção: ""vou dar uma volta"" (guia rápido)",atendimento,guia rápido,4,todos,intermediário,CT080,,não,2023-02-10
+CT086,"Objeção: ""vou pensar""",atendimento,vídeo,10,todos,intermediário,CT080,,não,2024-08-12
+CT087,"Objeção: ""vou pensar"" (guia rápido)",atendimento,guia rápido,2,todos,intermediário,CT080,,não,2023-10-15
+CT088,"Objeção: ""não tem meu tamanho""",atendimento,vídeo,6,todos,intermediário,CT080,,não,2024-10-09
+CT089,"Objeção: ""não tem meu tamanho"" (guia rápido)",atendimento,guia rápido,2,todos,intermediário,CT080,,não,2024-09-28
+CT090,Objeção: a acompanhante que não gostou,atendimento,vídeo,4,todos,intermediário,CT080,,não,2023-08-11
+CT091,Objeção: a acompanhante que não gostou (guia rápido),atendimento,guia rápido,4,todos,intermediário,CT080,,não,2023-09-08
+CT092,Venda adicional: acessórios no fechamento,atendimento,vídeo,7,todos,básico,,,não,2025-02-16
+CT093,Venda adicional: acessórios no fechamento (guia rápido),atendimento,guia rápido,2,todos,básico,,,não,2024-04-09
+CT094,Fechamento: sinais de compra,atendimento,vídeo,8,todos,básico,,,sim,2026-04-25
+CT095,Fechamento: sinais de compra (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2023-03-30
+CT096,Fechamento: como não perder a venda no caixa,atendimento,vídeo,4,todos,básico,CT094,,não,2025-10-26
+CT097,Fechamento: como não perder a venda no caixa (guia rápido),atendimento,guia rápido,4,todos,básico,CT094,,não,2024-12-17
+CT098,Pós-venda: mensagem no dia seguinte,atendimento,vídeo,3,todos,básico,,,não,2026-02-21
+CT099,Pós-venda: mensagem no dia seguinte (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2023-05-15
+CT100,Cliente fiel: como chamar pelo nome,atendimento,vídeo,5,todos,básico,,,não,2025-08-07
+CT101,Cliente fiel: como chamar pelo nome (guia rápido),atendimento,guia rápido,2,todos,básico,,,não,2024-08-22
+CT102,Cadastro da cliente: por que importa,atendimento,vídeo,6,todos,básico,,,não,2023-12-16
+CT103,Cadastro da cliente: por que importa (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2023-06-06
+CT104,Atendimento simultâneo em loja cheia,atendimento,vídeo,10,todos,intermediário,,,não,2023-10-15
+CT105,Atendimento simultâneo em loja cheia (guia rápido),atendimento,guia rápido,4,todos,intermediário,,,não,2023-08-30
+CT106,Cliente com pressa,atendimento,vídeo,9,todos,básico,,,não,2024-12-19
+CT107,Cliente com pressa (guia rápido),atendimento,guia rápido,2,todos,básico,,,não,2023-08-13
+CT108,Cliente que só está olhando,atendimento,vídeo,8,todos,básico,,,não,2025-07-16
+CT109,Cliente que só está olhando (guia rápido),atendimento,guia rápido,4,todos,básico,,,não,2024-04-16
+CT110,Cliente 60+,atendimento,vídeo,5,todos,básico,,,não,2024-04-30
+CT111,Cliente 60+ (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2025-07-31
+CT112,Cliente com criança,atendimento,vídeo,10,todos,básico,,,não,2024-09-20
+CT113,Cliente com criança (guia rápido),atendimento,guia rápido,4,todos,básico,,,não,2024-06-18
+CT114,Troca bem feita vira nova venda,atendimento,vídeo,3,todos,básico,,,sim,2024-05-15
+CT115,Troca bem feita vira nova venda (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2024-02-21
+CT116,Reclamação: como acolher,atendimento,vídeo,5,todos,básico,,,não,2025-08-24
+CT117,Reclamação: como acolher (guia rápido),atendimento,guia rápido,4,todos,básico,,,não,2026-10-12
+CT118,Lista da vez: regras e etiqueta,atendimento,vídeo,3,todos,básico,,,sim,2023-05-12
+CT119,Lista da vez: regras e etiqueta (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2023-11-25
+CT120,Metas: como acompanhar a sua no app,atendimento,vídeo,8,todos,básico,,,não,2025-08-28
+CT121,Metas: como acompanhar a sua no app (guia rápido),atendimento,guia rápido,4,todos,básico,,,não,2024-12-26
+CT122,Elogio sincero x elogio vazio,atendimento,vídeo,7,todos,básico,,,não,2025-10-19
+CT123,Elogio sincero x elogio vazio (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2025-07-25
+CT124,Atendimento em dupla no provador,atendimento,vídeo,5,todos,básico,,,não,2025-02-11
+CT125,Atendimento em dupla no provador (guia rápido),atendimento,guia rápido,3,todos,básico,,,não,2024-11-03
+CT126,Venda adicional: como oferecer a segunda peça,atendimento,vídeo,6,todos,intermediário,,,sim,2026-09-08
+CT127,Vitrine: princípios básicos,vitrine,vídeo,9,todos,básico,,,não,2026-06-26
+CT128,Vitrine: a regra dos três,vitrine,vídeo,11,todos,básico,,,não,2026-01-03
+CT129,Vitrine de liquidação,vitrine,vídeo,6,gerente,básico,,,não,2025-07-11
+CT130,Exposição por cor,vitrine,guia rápido,4,todos,básico,,,não,2024-02-25
+CT131,Exposição por look,vitrine,pdf,21,gerente,básico,,,não,2026-04-27
+CT132,Araras: organização e espaçamento,vitrine,guia rápido,3,todos,básico,,,não,2026-07-23
+CT133,Manequins: como vestir,vitrine,guia rápido,2,gerente,básico,,,não,2024-09-08
+CT134,Iluminação da loja,vitrine,guia rápido,5,todos,básico,,,não,2025-01-06
+CT135,Ilha central: o que expor,vitrine,vídeo,9,gerente,básico,,,não,2025-09-19
+CT136,Reposição durante o dia,vitrine,vídeo,3,gerente,básico,,,sim,2024-10-20
+CT137,Abertura de loja: checklist visual,vitrine,pdf,24,todos,básico,,,não,2025-04-06
+CT138,Fechamento de loja: checklist visual,vitrine,guia rápido,4,todos,básico,,,não,2026-04-25
+CT139,Provadores organizados,vitrine,vídeo,8,todos,básico,,,sim,2025-10-30
+CT140,Sinalização de preço,vitrine,pdf,23,gerente,básico,,,não,2023-12-07
+CT141,Vitrine de datas comemorativas,vitrine,pdf,25,todos,básico,,,não,2023-02-04
+CT142,Vitrine de Black Friday,vitrine,vídeo,12,todos,básico,,,não,2026-07-01
+CT143,Vitrine de Natal,vitrine,vídeo,7,todos,básico,,,não,2026-10-16
+CT144,Vitrine de Dia das Mães,vitrine,pdf,8,todos,básico,,,sim,2023-09-03
+CT145,Fotografar a vitrine para a matriz,vitrine,guia rápido,3,todos,básico,,,não,2025-04-30
+CT146,Padrão Aurora de cabides,vitrine,guia rápido,2,todos,básico,,,não,2023-07-09
+CT147,Dobras e prateleiras,vitrine,guia rápido,5,gerente,básico,,,não,2023-08-31
+CT148,Exposição de acessórios,vitrine,pdf,14,todos,básico,,,não,2025-08-28
+CT149,Música e aroma da loja,vitrine,guia rápido,4,todos,básico,,,não,2023-02-11
+CT150,Layout: o caminho da cliente,vitrine,guia rápido,5,todos,básico,,,não,2025-04-04
+CT151,Mapa de exposição: como ler,vitrine,vídeo,5,todos,básico,,,não,2023-07-01
+CT152,Abertura de caixa,caixa e processos,pdf,12,caixa,básico,,,não,2025-11-21
+CT153,Fechamento de caixa,caixa e processos,vídeo,10,todos,básico,,,não,2024-09-23
+CT154,PIX: passo a passo,caixa e processos,guia rápido,2,todos,básico,,,não,2025-03-26
+CT155,Cartão: parcelamento,caixa e processos,vídeo,7,caixa,básico,,,não,2024-09-27
+CT156,Cupom fiscal: erros comuns,caixa e processos,vídeo,6,caixa,básico,,,não,2026-06-12
+CT157,Troca: política Aurora,caixa e processos,vídeo,7,todos,básico,,,não,2025-04-23
+CT158,Troca sem nota fiscal,caixa e processos,guia rápido,4,todos,básico,,,não,2025-03-22
+CT159,Devolução: quando pode,caixa e processos,vídeo,6,caixa,básico,,,sim,2025-02-12
+CT160,Vale-troca,caixa e processos,guia rápido,5,todos,básico,,,não,2026-03-28
+CT161,Embalagem para presente,caixa e processos,pdf,29,caixa,básico,,,não,2024-08-13
+CT162,Cadastro de cliente no caixa,caixa e processos,vídeo,12,todos,básico,,,não,2026-06-24
+CT163,Sangria de caixa,caixa e processos,vídeo,5,todos,básico,,,sim,2024-05-20
+CT164,Venda com desconto: quem autoriza,caixa e processos,guia rápido,3,todos,básico,,,não,2025-04-09
+CT165,Transferência de estoque entre lojas,caixa e processos,pdf,14,todos,básico,,,não,2026-03-11
+CT166,Pedido de outra loja para a cliente,caixa e processos,pdf,18,todos,básico,,,não,2025-10-05
+CT167,Inventário mensal,caixa e processos,guia rápido,2,todos,básico,,,não,2024-07-15
+CT168,Recebimento de mercadoria,caixa e processos,pdf,8,todos,básico,,,não,2025-12-20
+CT169,Etiquetagem e alarme,caixa e processos,vídeo,5,todos,básico,,,sim,2023-08-03
+CT170,Ponto eletrônico,caixa e processos,guia rápido,5,todos,básico,,,não,2023-06-03
+CT171,Escala e folgas: como consultar,caixa e processos,vídeo,7,todos,básico,,,não,2025-09-25
+CT172,Comissão: como é calculada,caixa e processos,guia rápido,4,todos,básico,,,não,2024-02-20
+CT173,App do vendedor: primeiros passos,caixa e processos,pdf,14,todos,básico,,,não,2026-01-09
+CT174,Lançamento de vendas manuais,caixa e processos,guia rápido,4,caixa,básico,,,não,2023-09-07
+CT175,Sistema fora do ar: o que fazer,caixa e processos,vídeo,4,caixa,básico,,,não,2026-09-06
+CT176,Atendimento por telefone,caixa e processos,pdf,17,caixa,básico,,,não,2023-07-31
+CT177,A história da Aurora,cultura,vídeo,8,todos,básico,,,não,2024-07-13
+CT178,Nossos valores,cultura,vídeo,6,todos,básico,,,não,2023-09-07
+CT179,Código de conduta,cultura,vídeo,5,todos,básico,,,não,2026-09-19
+CT180,Diversidade e respeito no atendimento,cultura,vídeo,11,todos,básico,,,não,2026-08-14
+CT181,Recado do diretor: agosto,cultura,vídeo,12,todos,básico,,,não,2026-08-03
+CT182,Recado do diretor: setembro,cultura,podcast,10,todos,básico,,,não,2026-09-01
+CT183,Recado do diretor: outubro,cultura,podcast,24,todos,básico,,,não,2026-10-01
+CT184,Prêmio Aurora: os destaques do semestre,cultura,vídeo,5,todos,básico,,,não,2026-06-08
+CT185,Como uma coleção nasce,cultura,vídeo,5,todos,básico,,,sim,2025-02-28
+CT186,Visita à fábrica,cultura,vídeo,3,todos,básico,,,não,2024-07-09
+CT187,A Aurora no Instagram,cultura,vídeo,8,todos,básico,,,não,2025-05-10
+CT188,Campanha Verão 2027: bastidores,cultura,vídeo,10,todos,básico,,,não,2025-05-06
+CT189,Nosso compromisso com a sustentabilidade,cultura,vídeo,7,todos,básico,,,não,2025-04-24
+CT190,Uniforme e apresentação pessoal,cultura,vídeo,12,todos,básico,,,não,2023-12-19
+CT191,Assédio: como reconhecer e denunciar,cultura,podcast,23,todos,básico,,,não,2025-02-09
+CT192,Reunião matinal em 10 minutos,liderança,vídeo,12,gerente,básico,,,não,2024-06-10
+CT193,Como montar a escala da semana,liderança,vídeo,11,gerente,intermediário,,,não,2026-01-04
+CT194,Escala para sábados e datas fortes,liderança,vídeo,4,gerente,básico,,,não,2025-10-11
+CT195,Feedback: o básico,liderança,vídeo,2,gerente,intermediário,,,não,2025-06-29
+CT196,Feedback difícil,liderança,vídeo,7,gerente,intermediário,CT195,,não,2023-05-13
+CT197,Elogio que motiva,liderança,vídeo,8,gerente,avançado,,,não,2023-08-05
+CT198,Metas: como desdobrar para o time,liderança,pdf,12,gerente,avançado,,,não,2023-08-27
+CT199,Acompanhamento diário de indicadores,liderança,podcast,21,gerente,intermediário,,,não,2026-10-18
+CT200,Ticket médio: como subir,liderança,pdf,26,gerente,básico,,,sim,2025-05-12
+CT201,P.A.: como subir,liderança,podcast,15,gerente,avançado,,,não,2025-10-10
+CT202,Conversão: como ler o número,liderança,podcast,18,gerente,intermediário,,,não,2025-11-17
+CT203,Entrevista de vendedor,liderança,vídeo,8,gerente,básico,,,não,2026-03-10
+CT204,Integração do vendedor novo,liderança,podcast,15,gerente,intermediário,,,não,2026-09-30
+CT205,Primeira semana do vendedor novo: roteiro,liderança,pdf,4,gerente,avançado,,,sim,2024-06-13
+CT206,Conflitos no time,liderança,podcast,12,gerente,avançado,,,não,2025-08-16
+CT207,Faltas e atrasos: como conduzir,liderança,vídeo,12,gerente,intermediário,,,não,2026-07-21
+CT208,Desligamento: como conduzir,liderança,vídeo,7,gerente,avançado,,,sim,2024-12-16
+CT209,Campanhas de incentivo na loja,liderança,pdf,11,gerente,avançado,,,não,2023-10-10
+CT210,Liderar pelo exemplo no salão,liderança,vídeo,4,gerente,básico,,,sim,2023-12-27
+CT211,Gestão do tempo do gerente,liderança,pdf,30,gerente,básico,,,não,2024-10-15
+CT212,Relatórios do painel: o que olhar,liderança,podcast,17,gerente,intermediário,,,não,2023-04-23
+CT213,Fechamento do mês,liderança,vídeo,6,gerente,avançado,,,não,2025-09-30
+CT214,Preparação para a Black Friday,liderança,pdf,5,gerente,básico,,,não,2024-11-18
+CT215,Preparação para o Natal,liderança,vídeo,7,gerente,intermediário,,,sim,2024-12-26
+CT216,Inventário: o papel do gerente,liderança,vídeo,7,gerente,intermediário,,,sim,2026-02-21
+CT217,Prevenção de perdas: o papel do gerente,liderança,vídeo,4,gerente,intermediário,,,não,2023-08-04
+CT218,Clima da equipe,liderança,pdf,22,gerente,intermediário,,,não,2023-04-24
+CT219,Treino no salão: role-play,liderança,vídeo,8,gerente,avançado,,,sim,2026-06-27
+CT220,Como dar um treinamento de 5 minutos,liderança,pdf,29,gerente,avançado,,,sim,2025-04-02
+CT221,Plano de ação para loja abaixo da meta,liderança,vídeo,6,gerente,intermediário,,,sim,2026-05-22
+CT222,Bem-vinda à Aurora,integração,vídeo,3,todos,básico,,,não,2025-03-10
+CT223,Seu primeiro dia,integração,vídeo,6,todos,básico,,,não,2025-03-10
+CT224,Seu primeiro mês,integração,vídeo,3,todos,básico,,,não,2025-03-10
+CT225,Comissão e prêmio: entenda,integração,vídeo,7,todos,básico,,,não,2025-03-10
+CT226,Lista da vez: como funciona,integração,vídeo,4,todos,básico,,,não,2025-03-10
+CT227,App do vendedor: tour,integração,vídeo,6,todos,básico,,,sim,2025-03-10
+CT228,Quem é quem na Aurora,integração,vídeo,2,todos,básico,,,não,2025-03-10
+CT229,Tour pela loja,integração,vídeo,8,todos,básico,,,não,2025-03-10
+CT230,Seu primeiro atendimento,integração,vídeo,4,todos,básico,,,não,2025-03-10
+CT231,Como pedir ajuda,integração,vídeo,7,todos,básico,,,não,2025-03-10
+CT232,Regras da loja,integração,vídeo,6,todos,básico,,,não,2025-03-10
+CT233,Ponto e intervalos,integração,vídeo,2,todos,básico,,,não,2025-03-10
+CT234,Glossário do varejo,integração,vídeo,7,todos,básico,,,não,2025-03-10
+CT235,Metas: o que significam,integração,vídeo,8,todos,básico,,,não,2025-03-10
+CT236,Uniforme: o que vestir,integração,vídeo,4,todos,básico,,,não,2025-03-10
+CT237,Prevenção de perdas: o básico,prevenção de perdas,pdf,22,todos,básico,,,não,2025-05-09
+CT238,Furto: sinais de alerta,prevenção de perdas,vídeo,5,todos,básico,,,não,2026-01-18
+CT239,Alarme e etiquetas,prevenção de perdas,pdf,23,todos,básico,,,não,2025-03-02
+CT240,Provador: controle de peças,prevenção de perdas,vídeo,11,todos,básico,,,não,2023-04-05
+CT241,Abordagem segura em caso de furto,prevenção de perdas,vídeo,4,todos,básico,,,sim,2025-05-20
+CT242,Golpes no pagamento,prevenção de perdas,vídeo,3,todos,básico,,,não,2024-02-25
+CT243,Golpe do PIX agendado,prevenção de perdas,vídeo,3,todos,básico,,,não,2025-05-31
+CT244,Cartão clonado: sinais,prevenção de perdas,vídeo,10,todos,básico,,,não,2025-01-24
+CT245,Notas falsas,prevenção de perdas,vídeo,4,todos,básico,,,não,2026-08-25
+CT246,Segurança na abertura e no fechamento,prevenção de perdas,vídeo,3,todos,básico,,,não,2024-09-14
+CT247,Assalto: como agir,prevenção de perdas,vídeo,12,todos,básico,,,sim,2025-10-31
+CT248,Perdas por avaria,prevenção de perdas,pdf,6,todos,básico,,,sim,2026-10-17
+CT249,Conferência de estoque,prevenção de perdas,vídeo,4,todos,básico,,,não,2023-08-10
+CT250,Quebra de caixa,prevenção de perdas,pdf,28,todos,básico,,,não,2024-12-13
+CT251,LGPD: os dados da cliente,prevenção de perdas,vídeo,12,todos,básico,,,não,2026-06-25
+CT252,Vender pelo WhatsApp,digital,vídeo,9,todos,básico,,,não,2024-01-30
+CT253,WhatsApp: mensagens que funcionam,digital,vídeo,7,todos,básico,,,sim,2024-05-23
+CT254,WhatsApp: o que não fazer,digital,vídeo,7,todos,básico,,,sim,2024-03-23
+CT255,Instagram: como divulgar a loja,digital,vídeo,12,todos,básico,,,não,2023-03-08
+CT256,Fotos de produto com o celular,digital,pdf,7,todos,básico,,,não,2025-01-17
+CT257,Link de pagamento,digital,guia rápido,2,todos,básico,,,não,2023-02-21
+CT258,Retirada na loja: como atender,digital,guia rápido,2,todos,básico,,,não,2023-07-02
+CT259,Envio a partir da loja,digital,vídeo,3,todos,básico,,,não,2024-10-08
+CT260,Estoque da loja no site,digital,vídeo,9,todos,básico,,,não,2023-07-24
+CT261,Lista de clientes: como organizar,digital,vídeo,9,todos,básico,,,sim,2023-11-13
+CT262,Live commerce: o básico,digital,vídeo,6,todos,básico,,,sim,2023-12-06
+CT263,Avaliações online: como responder,digital,vídeo,3,todos,básico,,,não,2025-06-26
+CT264,A cliente que viu no site,digital,guia rápido,3,todos,básico,,,não,2024-01-12
+CT265,Troca de compra online na loja,digital,guia rápido,4,todos,básico,,,não,2024-01-30
+CT266,Catálogo digital,digital,vídeo,2,todos,básico,,,não,2025-10-25
+CT267,Atendimento por videochamada,digital,guia rápido,2,todos,básico,,,não,2025-09-07
+CT268,Datas comemorativas no WhatsApp,digital,vídeo,7,todos,básico,,,não,2024-12-17
+CT269,Mensagem de aniversário da cliente,digital,vídeo,3,todos,básico,,,não,2024-08-01
+CT270,Reativar a cliente sumida,digital,pdf,17,todos,básico,,,não,2025-04-04
+CT271,Vendas digitais e comissão,digital,pdf,4,todos,básico,,,não,2025-10-12
+CT272,Live de resultados: agosto,lives,vídeo,60,todos,básico,,,não,2026-09-02
+CT273,Live de resultados: setembro,lives,vídeo,55,todos,básico,,,não,2026-10-01
+CT274,Live de resultados: outubro,lives,vídeo,62,todos,básico,,,não,2026-10-30
+CT275,Convenção de vendas 2026,lives,vídeo,95,todos,básico,,,não,2026-02-20
+CT276,Live de lançamento: Inverno 2026,lives,vídeo,45,todos,básico,,,não,2026-03-16
+CT277,Live de lançamento: Verão 2026,lives,vídeo,48,todos,básico,,,não,2025-10-20
+CT278,Black Friday 2025: aprendizados,lives,vídeo,40,todos,básico,,,não,2025-12-05
+CT279,Natal 2025: o que funcionou,lives,vídeo,38,todos,básico,,,não,2026-01-12
+CT280,Live com a estilista,lives,vídeo,50,todos,básico,,,não,2026-06-10
+CT281,Perguntas e respostas com o diretor,lives,vídeo,55,todos,básico,,,não,2026-07-08
+CT282,Troca: política Aurora (versão 2),caixa e processos,vídeo,7,todos,básico,,,sim,2026-01-24
+CT283,Comissão: como é calculada (versão 2),caixa e processos,guia rápido,4,todos,básico,,,não,2026-04-22
+CT284,Vender pelo WhatsApp (versão 2),digital,vídeo,9,todos,básico,,,não,2026-04-02
+CT285,Tabela de medidas Aurora (versão 2),produto,vídeo,5,todos,básico,,,não,2026-10-30
+CT286,Abertura de caixa (versão 2),caixa e processos,pdf,12,caixa,básico,,,não,2026-03-25
+CT287,Reunião matinal em 10 minutos (versão 2),liderança,vídeo,12,gerente,básico,,,não,2026-02-25
+CT288,PIX: passo a passo (versão 2),caixa e processos,guia rápido,2,todos,básico,,,não,2026-02-20
+CT289,Vitrine: princípios básicos (versão 2),vitrine,vídeo,9,todos,básico,,,não,2026-07-12
+CT290,Lista da vez: regras e etiqueta (versão 2),atendimento,vídeo,3,todos,básico,,,não,2026-02-22
+CT291,Código de conduta (versão 2),cultura,vídeo,5,todos,básico,,,não,2026-10-23
+CT292,Pílula: sorria antes de abordar,atendimento,vídeo,1,todos,básico,,,não,2025-11-06
+CT293,Pílula: o nome da cliente,atendimento,vídeo,2,todos,básico,,,não,2023-09-27
+CT294,Pílula: espelho do provador,atendimento,vídeo,2,todos,básico,,,não,2023-06-23
+CT295,"Pílula: elogie a escolha, não a cliente",atendimento,vídeo,2,todos,básico,,,não,2026-04-20
+CT296,Pílula: ofereça água,atendimento,vídeo,1,todos,básico,,,não,2025-12-25
+CT297,Pílula: a peça da vitrine,atendimento,vídeo,2,todos,básico,,,não,2023-05-09
+CT298,"Pílula: não diga ""posso ajudar?""",atendimento,vídeo,2,todos,básico,,,não,2023-06-20
+CT299,Pílula: a sacola aberta,atendimento,vídeo,1,todos,básico,,,não,2023-09-08
+CT300,Pílula: tamanho certo de primeira,atendimento,vídeo,1,todos,básico,,,não,2026-03-12

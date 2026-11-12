@@ -1,0 +1,10 @@
+vendedor_id,nome,cargo,data_admissao,no_cargo_desde,escala,folgas,turno,ferias_no_periodo
+C0030,Diego Furtado,gerente,2021-03-08,2026-05-04,6x1,dom,integral,
+C0031,Bianca Rocha,vendedor,2023-08-14,2023-08-14,6x1,seg,manhã,
+C0032,Sabrina Alves,vendedor,2022-02-07,2022-02-07,6x1,qua,manhã,
+C0033,Kaique Ramos,vendedor,2024-06-03,2024-06-03,6x1,ter,manhã,
+C0034,Lucas Moreira,vendedor,2026-09-01,2026-09-01,6x1,qui,manhã,
+C0035,Marcelo Duarte,vendedor,2019-11-18,2019-11-18,6x1,seg,tarde,
+C0036,Renata Campos,vendedor,2020-07-06,2020-07-06,6x1,ter,tarde,2026-09-08 a 2026-09-27
+C0037,Tatiane Lopes,vendedor,2023-01-09,2023-01-09,6x1,qua,tarde,
+C0038,Vanessa Brito,vendedor,2024-10-14,2024-10-14,5x2,"qui,dom",tarde,
