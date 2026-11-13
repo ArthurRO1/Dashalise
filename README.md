@@ -54,7 +54,7 @@ O ajuste de pesos (fine-tuning) não está disponível atualmente na Gemini Deve
 - Chat compacto disponível ao navegar para outras abas, preservando a conversa ativa.
 - Respostas podem trazer atalhos para a aba da meta, produto, equipe ou venda correspondente.
 - Painel de indicadores com evolução diária de vendas, ticket médio, conversão, peças por venda, preço médio e projeção de fechamento. A comparação anual é apresentada por loja, pois o arquivo histórico não detalha vendedor.
-- Vendas, metas e comissões são calculadas no backend e personalizadas pelo perfil: funcionário vê os próprios dados, supervisor vê suas equipes, e gerente/administrador veem a empresa.
+- Vendas, metas e comissões são calculadas no backend e personalizadas pelo perfil: funcionário vê os próprios dados; supervisor vê as lojas da sua regional; gerente vê as lojas que gerencia; administrador vê a empresa inteira.
 - Alertas inteligentes acompanham prazo e ritmo da meta. Alertas de desenvolvimento incluem práticas do conteúdo comercial e permitem pedir um exemplo à IA; não há alertas de cancelamento ou produto porque essas dimensões não existem na fonte.
 - O chat pode exibir um cartão com período, vendas, meta, atendimentos, conversão e comparação agregada da loja que fundamentam uma resposta; conversas da equipe mostram os menores faturamentos no escopo autorizado e permitem abrir o painel individual. Diferenças são tratadas como sinais para investigar, não como diagnóstico automático.
 - A IA responde perguntas sobre indicadores e vendas no escopo do perfil selecionado; orientações comerciais usam Gemini quando há chave e consultam a base de conhecimento e exemplos relevantes. Links internos abrem a tela correspondente e mantêm a conversa no modal flutuante. Cada resposta pode receber avaliação humana.
@@ -78,23 +78,28 @@ prompts/              histórico de prompts usados no desenvolvimento
 DIARIO.md             diário de decisões e aprendizados do participante
 ```
 
+A rota `/` renderiza `sales/templates/sales/index.html` por meio de `sales/pages.py`. O `index.html` que está na raiz é uma cópia antiga e não é usado pelo Django.
+
 ## Rotas principais
 
 As rotas de dados usam `X-Demo-Role` com `funcionario`, `supervisor`, `gerente` ou `administrador`. Gerente e administrador podem incluir `?employee_id=<id>` em dashboard, vendas, produtos e alertas para consultar o recorte individual daquele vendedor, validado pela associação à empresa.
 
 | Rota | Uso |
 | --- | --- |
+| `GET /api/health/` | Verificar se a API está respondendo |
 | `GET /api/dashboard/` | Resumo de vendas, metas, comissões, indicadores e série diária |
-| `GET /api/sales/` | Vendas dentro do escopo do perfil |
+| `GET/POST /api/sales/` | Consultar vendas ou cadastrar uma venda para gerente/administrador |
 | `POST /api/sales/{id}/reflections/` | Registrar dificuldade e etapa de aprendizado da venda |
 | `POST /api/sales/import-csv/` | Importação CSV para gerente/administrador |
 | `GET /api/teams/` | Equipes do escopo do perfil |
 | `GET /api/people/` | Resumo individual de vendas e metas (gerente/administrador) |
-| `GET /api/products/` | Catálogo, vendas vinculadas e cenário simulado de produto, identificado separadamente |
+| `GET/POST /api/products/` | Consultar catálogo e métricas separadas ou cadastrar produto (gerente/administrador) |
 | `GET /api/alerts/` | Alertas inteligentes visíveis ao perfil e atualizados na consulta |
+| `POST /api/alerts/{id}/read/` | Marcar alerta como lido dentro do escopo do perfil |
 | `GET/POST /api/conversations/` | Listar e criar conversas por venda/etapa |
 | `GET /api/conversations/{id}/` | Carregar mensagens e fontes da conversa |
 | `POST /api/assistant/` | Perguntar sobre dados internos ou pesquisar na web |
+| `GET /api/assistant/status/` | Consultar disponibilidade da integração Gemini/Search pela chave configurada |
 | `POST /api/assistant/messages/{id}/feedback/` | Avaliar uma resposta do assistente |
 | `GET/POST /api/specializations/` | Consultar/criar especialização (gerente) |
 | `PATCH/DELETE /api/specializations/{id}/` | Editar ou remover especialização (gerente) |

@@ -117,7 +117,7 @@ def date_range(request):
     return start, end, None
 
 
-def requested_employee(request, role, company):
+def requested_employee(request, role, user, company):
     """Permit a manager to drill into a member's personal view, within this company."""
     employee_id = request.query_params.get("employee_id") or request.data.get("employee_id")
     if not employee_id:
@@ -150,7 +150,7 @@ def dashboard(request):
     role, user, company, error = demo_context(request)
     if error:
         return error
-    employee, error = requested_employee(request, role, company)
+    employee, error = requested_employee(request, role, user, company)
     if error:
         return error
     data_user = employee or user
@@ -222,7 +222,7 @@ def sales_list(request):
     role, user, company, error = demo_context(request)
     if error:
         return error
-    employee, error = requested_employee(request, role, company)
+    employee, error = requested_employee(request, role, user, company)
     if error:
         return error
     data_user = employee or user
@@ -459,7 +459,7 @@ def products_list(request):
         AuditEvent.objects.create(company=company, actor=user, action="product.created", object_type="Product", object_id=str(product.id))
         return Response({"id": product.id, "sku": product.sku, "name": product.name, "category": product.category}, status=201)
 
-    employee, error = requested_employee(request, role, company)
+    employee, error = requested_employee(request, role, user, company)
     if error:
         return error
     data_user = employee or user
@@ -493,7 +493,7 @@ def alerts_list(request):
     role, user, company, error = demo_context(request)
     if error:
         return error
-    employee, error = requested_employee(request, role, company)
+    employee, error = requested_employee(request, role, user, company)
     if error:
         return error
     data_user = employee or user
@@ -854,7 +854,7 @@ def assistant(request):
         return Response({"detail": "Informe uma pergunta."}, status=400)
     if len(question) > 1000:
         return Response({"detail": "A pergunta deve ter até 1.000 caracteres."}, status=400)
-    employee, error = requested_employee(request, role, company)
+    employee, error = requested_employee(request, role, user, company)
     if error:
         return error
     # Let managers ask naturally about a uniquely named seller; the match stays inside their company.
