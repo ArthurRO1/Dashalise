@@ -13,6 +13,7 @@ from .models import (
     ChatMessage,
     Conversation,
     KnowledgeArticle,
+    ProductDemoPerformance,
     ProductSpecialization,
     PriorYearStoreSales,
     Sale,
@@ -99,7 +100,7 @@ def specialization_context(company, sale=None, question=""):
         for term in terms:
             matches |= Q(title__icontains=term) | Q(category__icontains=term) | Q(products__name__icontains=term)
         relevant = profiles.filter(matches).distinct() if terms else ProductSpecialization.objects.none()
-        profiles = relevant[:1] if relevant.exists() else ProductSpecialization.objects.none()
+        profiles = relevant[:3] if relevant.exists() else ProductSpecialization.objects.none()
     return [
         {
             "title": profile.title,
@@ -137,7 +138,7 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
             )
         performance_lines.append(f"Leitura cautelosa: {performance_context.get('signal', '')}")
         context_parts.append("Indicadores calculados pelo backend para este perfil e período:\n" + "\n".join(performance_lines))
-    for profile in profiles[:1]:
+    for profile in profiles[:3]:
         context_parts.append(
             f"Especialização: {profile['title']} ({profile['category']})\n"
             f"Produtos: {', '.join(profile['products']) or 'geral'}\n"
@@ -182,11 +183,13 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
         "Não repita a pergunta, não apresente etapa ou contexto que não foi solicitado, nem despeje catálogo, "
         "especializações ou material de referência. Seja breve: no máximo 3 frases curtas, salvo pedido de detalhes. "
         "Use o material fornecido como fonte da verdade. Não invente preço, recurso, compatibilidade, prazo ou política. "
+        "Para perguntas sobre produtos cadastrados, priorize as características e limitações do catálogo da empresa; a busca na web não confirma características dos produtos de demonstração. Identifique como simulado qualquer número vindo do cenário demonstrativo. "
         "Quando a pergunta pedir pesquisa científica, use a busca disponível, cite fontes publicadas e separe evidência externa dos dados da empresa. "
         "Diferencie cálculo descritivo, associação, hipótese e causalidade; não diga que uma prática ou este software causou resultado sem evidência experimental apropriada. "
         "Quando receber indicadores calculados pelo backend, use-os como evidência numérica somente se forem relevantes à pergunta; explicite o período e o escopo, mostre a comparação disponível e nunca trate uma diferença como diagnóstico da causa ou falha pessoal. "
         "Se um gestor pedir o que fazer sobre o desempenho de uma pessoa, dê passos práticos de acompanhamento: apresente o sinal observado sem rótulos, investigue contexto em conversa individual, proponha uma habilidade para praticar somente como hipótese e combine quando rever os indicadores. Não troque essa resposta por um roteiro para o cliente. "
-        "A base Rede Aurora é fictícia e não contém produtos por transação, motivos de cancelamento ou observações de conversas reais. "
+        "O catálogo de exemplo e suas métricas simuladas são apenas cenários de demonstração, separados das vendas reais dos funcionários. "
+        "Não mencione arquivos ou planilhas como justificativa para uma limitação; explique diretamente qual dado não está disponível. "
         "Se faltar informação, diga isso e indique exatamente o que confirmar. Para situações com clientes, trate pressa e perfil "
         "como contexto momentâneo, não como característica fixa. Dê um exemplo de fala quando ajudar, adaptado ao pedido; "
         "não despeje um roteiro inteiro se o usuário pedir algo específico. Não calcule nem invente resultados de vendas. "
@@ -289,7 +292,7 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             f"{sentence} {brl(metrics['revenue'])} em vendas válidas e {metrics['orders']} pedidos neste mês. "
             f"A meta está em {metrics['goal_progress_percent']:.1f}% ({brl(metrics['goal'])}); "
             f"a comissão acumulada é {brl(metrics['commission'])}. "
-            "A base do desafio não informa cancelamentos nem os motivos das vendas perdidas."
+            "Não há registro de cancelamentos nem dos motivos das vendas perdidas neste painel."
         ), [], "dados internos do perfil individual"
 
     if any(word in normalized for word in ("meta", "falta", "atingir", "quanto vendi", "minhas vendas", "comiss", "ticket", "pedido")):
@@ -309,7 +312,7 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
         ), [], "dados internos"
 
     if any(word in normalized for word in ("cancelamento", "cancelada", "canceladas")):
-        return "Os arquivos do Desafio 2 não registram cancelamentos nem motivos de perda. A taxa não pode ser calculada com segurança a partir desta base.", [], "limite dos dados disponíveis"
+        return "Não há registro de cancelamentos ou motivos de perda neste painel; por isso, não consigo calcular essa taxa com segurança.", [], "limite dos dados disponíveis"
 
     if any(word in normalized for word in ("conversão", "conversao")):
         return f"No período, a conversão foi {metrics['conversion_rate_percent']:.1f}%: {metrics['orders']} vendas divididas por {metrics['attendances']} atendimentos.", [], "cálculo determinístico sobre dados internos"
@@ -348,7 +351,7 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             variation = change / previous_total * 100
             direction = "acima" if change >= 0 else "abaixo"
             return f"Neste período, as vendas estão {brl(abs(change))} ({abs(variation):.1f}%) {direction} do mesmo período do ano anterior: {brl(metrics['revenue'])} contra {brl(previous_total)}. A base anterior é agregada por loja.", [], "comparação de dados internos"
-        return "Não há dados comparáveis para o período e lojas selecionados no arquivo do ano anterior.", [], "limite dos dados disponíveis"
+        return "Ainda não há valores comparáveis para o período e as lojas selecionadas.", [], "limite dos dados disponíveis"
 
     if any(word in normalized for word in ("compar", "mês passado", "mes passado", "mês anterior", "mes anterior")):
         previous_end = period_start - timedelta(days=1)
@@ -361,7 +364,15 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             return f"Neste mês as vendas estão {brl(abs(change))} ({abs(variation):.1f}%) {direction} do mês anterior: {brl(metrics['revenue'])} contra {brl(previous_total)}.", [], "comparação de dados internos"
         return f"O mês anterior teve {brl(previous_total)} em vendas válidas; este mês tem {brl(metrics['revenue'])}.", [], "comparação de dados internos"
 
-    if any(word in normalized for word in ("produto", "ranking", "mais vendido", "menos vendido")):
+    product_metrics_terms = (
+        "ranking", "mais vendido", "menos vendido", "mais vendeu", "vendeu mais",
+        "quanto vendeu", "quantas vendas", "unidades vendidas", "unidades", "faturamento", "receita",
+    )
+    product_names = ProductDemoPerformance.objects.filter(company=company).values_list("product__name", flat=True)
+    mentions_product = any(word in normalized for word in ("produto", "produtos")) or any(
+        name.casefold() in normalized for name in product_names
+    )
+    if mentions_product and any(term in normalized for term in product_metrics_terms):
         sales = visible_sales(user, role, company, period_start, today).filter(status=Sale.Status.VALID, product__isnull=False)
         order = "amount" if any(word in normalized for word in ("menos", "menor", "pior")) else "-amount"
         ranked = list(
@@ -369,10 +380,35 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             .annotate(amount=Sum("amount"), orders=Count("id"))
             .order_by(order)[:3]
         )
-        if not ranked:
-            return "Os arquivos do Desafio 2 não relacionam cada resumo diário a um produto. Posso analisar receita, conversão, peças por venda e metas, mas não afirmar qual produto vendeu mais.", [], "limite dos dados disponíveis"
-        listing = "; ".join(f"{item['product__name']}: {brl(item['amount'])}" for item in ranked)
-        return f"Produtos ordenados pela receita neste mês: {listing}.", [], "dados internos"
+        if ranked:
+            listing = "; ".join(f"{item['product__name']}: {brl(item['amount'])} em receita" for item in ranked)
+            return f"Entre os produtos vinculados às vendas deste período, a ordem por receita é: {listing}.", [], "vendas vinculadas a produtos"
+
+        demo_metrics = list(ProductDemoPerformance.objects.filter(
+            company=company, period_start__lte=today, period_end__gte=period_start,
+        ).select_related("product"))
+        if not demo_metrics:
+            return "Ainda não há vendas vinculadas a produtos neste período. Posso mostrar o catálogo e as características cadastradas.", [], "catálogo de produtos"
+        ascending = any(term in normalized for term in ("menos", "menor", "pior"))
+        choose_metric = min if ascending else max
+        revenue_leader = choose_metric(demo_metrics, key=lambda item: item.revenue)
+        units_leader = choose_metric(demo_metrics, key=lambda item: item.units_sold)
+        revenue_label = "menor receita" if ascending else "maior receita"
+        units_label = "menos unidades" if ascending else "mais unidades"
+        ranking = sorted(
+            demo_metrics,
+            key=lambda item: item.units_sold if any(term in normalized for term in ("unidades", "quantidade", "peças", "pecas")) else item.revenue,
+            reverse=not ascending,
+        )
+        listing = "; ".join(
+            f"{item.product.name}: {brl(item.revenue)}, {item.units_sold} unidades ({item.orders} vendas)"
+            for item in ranking
+        )
+        return (
+            f"No cenário simulado de demonstração, {revenue_leader.product.name} tem a {revenue_label} ({brl(revenue_leader.revenue)}); "
+            f"por unidades, {units_leader.product.name} tem {units_label} ({units_leader.units_sold}). "
+            f"Valores do período: {listing}. São números fictícios de apresentação e não representam as vendas dos funcionários."
+        ), [], "cenário simulado de produtos"
 
     if any(word in normalized for word in ("equipe", "vendedores", "desempenho", "resultados", "como está", "como esta")):
         if role == "funcionario":
@@ -396,7 +432,11 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
     articles = retrieve_guidance(company, question, stage)
     guidance = "\n".join(f"{article.title}: {article.content}" for article in articles)
     specializations = specialization_context(company, sale, question)
-    technical_terms = ("técnic", "tecnic", "integra", "compatib", "requisito", "implant", "segurança", "seguranca", "funciona", "limite", "recurso")
+    technical_terms = (
+        "técnic", "tecnic", "integra", "compatib", "requisito", "implant", "segurança", "seguranca",
+        "funciona", "limite", "recurso", "diferença", "diferenca", "compare", "comparar",
+        "composição", "composicao", "tamanho", "material", "característica", "caracteristica",
+    )
     if any(term in normalized for term in technical_terms) and specializations:
         details = []
         for item in specializations[:2]:

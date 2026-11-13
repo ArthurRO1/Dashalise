@@ -455,7 +455,7 @@ function renderSalesPage() {
       <td><button class="table-action" data-sale-chat="${sale.id}">Consultar este resumo ↗</button></td>
       <td><div class="reflection-cell">${sale.reflections?.length ? `<strong>${escapeHtml(sale.reflections[0].stage_label)}</strong><small>${escapeHtml(sale.reflections[0].challenge)}</small>` : '<small>Nenhum relato registrado</small>'}<button class="table-action" data-reflection-sale="${sale.id}">${sale.reflections?.length ? "Adicionar aprendizado" : "Registrar dificuldade"}</button></div></td>
     </tr>`).join("");
-  return `${pageHeader("Vendas", state.selectedEmployee ? `Vendas individuais de ${state.selectedEmployee.name}. Abra um resumo diário para consultar o contexto disponível.` : "Consulte os resumos diários de valor, vendas, peças e atendimentos; os arquivos não detalham cada transação.")}
+  return `${pageHeader("Vendas", state.selectedEmployee ? `Vendas individuais de ${state.selectedEmployee.name}. Abra um resumo diário para consultar o contexto disponível.` : "Consulte os resumos diários de receita, vendas, peças e atendimentos. O detalhe de cada transação não está disponível.")}
     <div class="metric-grid">
       <article class="metric-card"><span>Dias de trabalho exibidos</span><strong>${state.sales.length}</strong></article>
       <article class="metric-card"><span>Receita válida</span><strong>${money.format(Number(state.summary?.revenue || 0))}</strong></article>
@@ -533,10 +533,10 @@ function renderIndicatorsPage() {
       <article class="metric-card"><span>Pedidos válidos</span><strong>${Number(summary.orders || 0).toLocaleString("pt-BR")}</strong></article>
       <article class="metric-card"><span>Ticket médio</span><strong>${money.format(Number(summary.average_order_value || 0))}</strong></article>
     </div>
-    <details class="secondary-metrics"><summary>Ver outros indicadores</summary><div class="metric-grid"><article class="metric-card"><span>Conversão (vendas ÷ atendimentos)</span><strong>${percent.format(Number(summary.conversion_rate_percent || 0))}%</strong></article><article class="metric-card"><span>Peças por venda (P.A.)</span><strong>${percent.format(Number(summary.pieces_per_sale || 0))}</strong></article><article class="metric-card"><span>Preço médio por peça</span><strong>${money.format(Number(summary.average_item_price || 0))}</strong></article><article class="metric-card"><span>Cancelamentos</span><strong>Sem dado na base</strong></article><article class="metric-card"><span>Projeção de fechamento</span><strong>${summary.closing_projection ? money.format(Number(summary.closing_projection)) : "—"}</strong></article><article class="metric-card"><span>Média diária no período</span><strong>${money.format(Number(summary.daily_average || 0))}</strong></article></div></details>
+    <details class="secondary-metrics"><summary>Ver outros indicadores</summary><div class="metric-grid"><article class="metric-card"><span>Conversão (vendas ÷ atendimentos)</span><strong>${percent.format(Number(summary.conversion_rate_percent || 0))}%</strong></article><article class="metric-card"><span>Peças por venda (P.A.)</span><strong>${percent.format(Number(summary.pieces_per_sale || 0))}</strong></article><article class="metric-card"><span>Preço médio por peça</span><strong>${money.format(Number(summary.average_item_price || 0))}</strong></article><article class="metric-card"><span>Cancelamentos</span><strong>Sem registro no período</strong></article><article class="metric-card"><span>Projeção de fechamento</span><strong>${summary.closing_projection ? money.format(Number(summary.closing_projection)) : "—"}</strong></article><article class="metric-card"><span>Média diária no período</span><strong>${money.format(Number(summary.daily_average || 0))}</strong></article></div></details>
     <div class="analytics-grid">
     <section class="panel"><header class="panel-heading"><div><h2>Evolução das vendas</h2><p>Receita diária válida no período selecionado</p></div></header><div class="panel-body">${renderTrendChart(summary.sales_by_day || [])}</div></section>
-      <section class="panel"><header class="panel-heading"><div><h2>Produtos por receita</h2><p>O conjunto de dados não informa o produto de cada venda.</p></div></header><div class="panel-body product-bars">${products || '<p class="empty-state">Não é possível criar um ranking de produtos sem dados por produto. Cadastre o catálogo para especializar a IA; vincular o histórico exigiria uma fonte de vendas detalhada.</p>'}</div></section>
+      <section class="panel"><header class="panel-heading"><div><h2>Produtos por receita</h2><p>Vendas vinculadas a produtos, quando disponíveis.</p></div></header><div class="panel-body product-bars">${products || '<p class="empty-state">Ainda não há vendas vinculadas a produtos neste perfil. Consulte o cenário de apresentação na aba Produtos; ele fica separado destes indicadores.</p>'}</div></section>
     </div>
     <section class="panel insight-summary"><header class="panel-heading"><div><h2>Leitura dos indicadores</h2><p>Resumo objetivo para orientar a próxima consulta</p></div><button class="button" data-go="alertas">Ver alertas (${state.alerts.filter((alert) => !alert.read_at).length})</button></header><div class="panel-body"><p>${Number(summary.goal || 0) ? `${state.selectedEmployee ? `${escapeHtml(state.selectedEmployee.name)} está` : "O perfil selecionado está"} em <strong>${percent.format(Number(summary.goal_progress_percent || 0))}%</strong> da meta. ${Number(summary.remaining || 0) ? `Faltam <strong>${money.format(Number(summary.remaining))}</strong> para atingir o objetivo.` : "A meta foi alcançada no período."}` : "Ainda não há meta cadastrada para este perfil e período."} ${summary.daily_goal_pace ? `O ritmo médio necessário é <strong>${money.format(Number(summary.daily_goal_pace))} por dia</strong>.` : ""}</p>${yearComparison}</div></section>`;
 }
@@ -609,16 +609,26 @@ function selectEmployee(employee) {
 async function renderProductsPage() {
   const page = document.getElementById("pageView");
   const isManager = state.role === "gerente" && !state.selectedEmployee;
-  page.innerHTML = `${pageHeader("Produtos", "Cadastre referências para a IA; a base histórica do Desafio 2 não informa o produto de cada venda.")}
+  page.innerHTML = `${pageHeader("Produtos", "Catálogo para especializar a IA e um cenário de produtos fictício para demonstração, separado dos resultados da equipe.")}
+    <section class="panel demo-product-prompts"><header class="panel-heading"><div><h2>Experimente o assistente</h2><p>Use os exemplos fictícios para demonstrar consulta e orientação de produtos.</p></div></header><div class="panel-body suggestion-list"><button type="button" data-demo-product-prompt="No cenário simulado de outubro, qual produto teve maior receita e qual vendeu mais unidades?"><span>↗</span>Compare receita e unidades vendidas</button><button type="button" data-demo-product-prompt="Compare a Camiseta Essencial e a Calça Jeans Reta para ajudar um cliente que busca uma peça para o dia a dia."><span>✦</span>Peça uma recomendação com base no catálogo</button></div></section>
     ${isManager ? `<section class="panel"><header class="panel-heading"><div><h2>Novo produto</h2><p>Cadastre produtos para associá-los às especializações da IA.</p></div></header><form class="panel-body form-grid" id="productForm"><div class="form-field"><label>Nome do produto</label><input name="name" required /></div><div class="form-field"><label>SKU ou código</label><input name="sku" required /></div><div class="form-field"><label>Categoria</label><input name="category" /></div><div class="form-field"><label>Descrição</label><input name="description" /></div><div class="form-field full"><button class="button primary" type="submit">Cadastrar produto</button></div></form></section>` : ""}
-    <section class="panel"><header class="panel-heading"><div><h2>Catálogo de referência</h2><p>Os itens cadastrados aqui ainda não podem ser associados aos resumos de vendas importados.</p></div></header><div class="table-scroll"><table><thead><tr><th>Produto</th><th>SKU</th><th>Receita comprovada na base</th><th>Pedidos comprovados</th></tr></thead><tbody id="productsBody"><tr><td colspan="4" class="empty-state">Carregando produtos…</td></tr></tbody></table></div></section>`;
+    <section class="panel"><header class="panel-heading"><div><h2>Catálogo e dados de demonstração</h2><p>Os resultados simulados aparecem em coluna própria e nunca entram nas metas, comissões ou indicadores dos funcionários.</p></div></header><div class="table-scroll"><table><thead><tr><th>Produto</th><th>SKU</th><th>Vendas vinculadas no sistema</th><th>Cenário simulado de outubro</th></tr></thead><tbody id="productsBody"><tr><td colspan="4" class="empty-state">Carregando produtos…</td></tr></tbody></table></div></section>`;
   if (isManager) document.getElementById("productForm").addEventListener("submit", createProduct);
   try {
     const targetQuery = state.selectedEmployee ? `?employee_id=${state.selectedEmployee.id}` : "";
     const products = await api(`/api/products/${targetQuery}`);
     state.products = products;
     const body = document.getElementById("productsBody");
-    if (body) body.innerHTML = products.map((product) => `<tr><td><strong>${escapeHtml(product.name)}</strong><small class="cell-subtitle">${escapeHtml(product.category || "Sem categoria")}</small></td><td>${escapeHtml(product.sku)}</td><td>${money.format(Number(product.amount || 0))}</td><td>${product.orders}</td></tr>`).join("") || '<tr><td colspan="4" class="empty-state">Nenhum produto cadastrado.</td></tr>';
+    if (body) body.innerHTML = products.map((product) => {
+      const sample = product.demo_performance;
+      const linkedSales = product.real_performance_available
+        ? `${money.format(Number(product.amount || 0))} · ${Number(product.orders || 0)} vendas`
+        : "Sem vendas vinculadas";
+      const demoSales = sample
+        ? `<strong>${money.format(Number(sample.revenue))}</strong><small class="cell-subtitle">${sample.orders} vendas · ${sample.units_sold} unidades</small><small class="cell-subtitle">${escapeHtml(sample.scenario_label)} · ${new Date(`${sample.period_start}T12:00:00`).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</small>`
+        : "Sem cenário simulado";
+      return `<tr><td><strong>${escapeHtml(product.name)}</strong><small class="cell-subtitle">${escapeHtml(product.category || "Sem categoria")}</small><small class="cell-subtitle">${escapeHtml(product.description || "")}</small></td><td>${escapeHtml(product.sku)}</td><td>${linkedSales}</td><td>${demoSales}</td></tr>`;
+    }).join("") || '<tr><td colspan="4" class="empty-state">Nenhum produto cadastrado.</td></tr>';
   } catch (error) { notify(error.message); }
 }
 
@@ -987,6 +997,14 @@ document.getElementById("floatingForm").addEventListener("submit", async (event)
 document.getElementById("messageList").addEventListener("click", (event) => {
   const button = event.target.closest("[data-prompt]");
   if (button) sendQuestion(button.dataset.prompt, false);
+});
+document.getElementById("pageView").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-demo-product-prompt]");
+  if (!button) return;
+  const prompt = button.dataset.demoProductPrompt;
+  navigate("inicio");
+  document.getElementById("assistantQuestion").value = prompt;
+  sendQuestion(prompt);
 });
 document.getElementById("floatingChatTrigger").addEventListener("click", () => openFloating(true));
 document.getElementById("closeFloatingChat").addEventListener("click", () => openFloating(false));

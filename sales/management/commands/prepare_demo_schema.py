@@ -11,6 +11,7 @@ from sales.models import (
     DemoIdentity,
     KnowledgeArticle,
     Product,
+    ProductDemoPerformance,
     ProductSpecialization,
     PriorYearStoreSales,
     Sale,
@@ -102,7 +103,7 @@ class Command(BaseCommand):
                     self.stdout.write("Campo atualizado: Sale.product agora aceita valores vazios")
 
             for model in (
-                DemoIdentity, PriorYearStoreSales, ProductSpecialization, Conversation,
+                DemoIdentity, PriorYearStoreSales, ProductDemoPerformance, ProductSpecialization, Conversation,
                 ChatMessage, SaleReflection, AssistantFeedback,
             ):
                 if model._meta.db_table not in tables:

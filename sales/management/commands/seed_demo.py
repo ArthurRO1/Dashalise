@@ -11,8 +11,8 @@ from django.db import transaction
 
 from sales.models import (
     Alert, Company, Conversation, DemoIdentity, Goal, KnowledgeArticle,
-    PriorYearStoreSales, Product, ProductSpecialization, Sale, SaleReflection,
-    Team, TeamMembership,
+    PriorYearStoreSales, Product, ProductDemoPerformance, ProductSpecialization,
+    Sale, SaleReflection, Team, TeamMembership,
 )
 
 User = get_user_model()
@@ -72,6 +72,7 @@ class Command(BaseCommand):
         Alert.objects.filter(company=company).delete()
         Goal.objects.filter(company=company).delete()
         ProductSpecialization.objects.filter(company=company).delete()
+        ProductDemoPerformance.objects.filter(company=company).delete()
         KnowledgeArticle.objects.filter(company=company).delete()
         Product.objects.filter(company=company).delete()
         DemoIdentity.objects.filter(company=company).delete()
@@ -267,6 +268,7 @@ class Command(BaseCommand):
             ))
         PriorYearStoreSales.objects.bulk_create(prior_sales, batch_size=1000)
         self._seed_sales_method(company)
+        self._seed_demo_products(company)
 
         self.stdout.write(self.style.SUCCESS(
             f"Rede Aurora carregada: {len(teams)} lojas, {len(user_rows)} usuários, "
@@ -274,7 +276,80 @@ class Command(BaseCommand):
             f"e {len(prior_sales)} registros de comparação anual."
         ))
         self.stdout.write("Perfis de demonstração: Bianca Rocha (funcionária), Patrícia Lemos (regional), Diego Furtado (gerente) e Marcos Albuquerque (diretoria).")
-        self.stdout.write("Observação: os arquivos não incluem catálogo de produtos nem cancelamentos.")
+        self.stdout.write("Catálogo e desempenho de produtos são simulados e ficam separados das vendas dos vendedores.")
+
+    @staticmethod
+    def _seed_demo_products(company):
+        products = [
+            {
+                "sku": "DEMO-VEST-001", "name": "Camiseta Essencial", "category": "Vestuário",
+                "description": "Camiseta de malha de algodão, modelagem regular, tamanhos PP a XG.",
+                "units": 146, "orders": 126, "revenue": "18900.00",
+                "audience": "Pessoas que procuram uma peça casual para uso cotidiano.",
+                "differentiators": "Malha de algodão e modelagem regular; tamanhos PP a XG.",
+                "limitations": "Não há preço, cores disponíveis, certificação têxtil ou instrução de lavagem cadastrados.",
+                "questions": "Qual modelagem costuma preferir? Há alguma cor, tamanho ou faixa de preço que devo considerar?",
+                "guidance": "Confirme tamanho, caimento e faixa de preço antes de apresentar opções; não presuma que algodão seja a única prioridade.",
+            },
+            {
+                "sku": "DEMO-VEST-002", "name": "Calça Jeans Reta", "category": "Vestuário",
+                "description": "Calça jeans de modelagem reta, composição informada de algodão com elastano, tamanhos 36 a 48.",
+                "units": 112, "orders": 102, "revenue": "34440.00",
+                "audience": "Pessoas que procuram uma calça jeans de modelagem reta.",
+                "differentiators": "Modelagem reta, composição cadastrada de algodão com elastano e tamanhos 36 a 48.",
+                "limitations": "Percentual da composição, cores, preço e medidas da peça não estão cadastrados.",
+                "questions": "Prefere cintura mais alta ou média? Qual numeração e tipo de caimento costuma funcionar melhor?",
+                "guidance": "Ajude a confirmar numeração e caimento; ofereça prova e compare apenas características cadastradas.",
+            },
+            {
+                "sku": "DEMO-CALC-003", "name": "Tênis Casual Urbano", "category": "Calçados",
+                "description": "Tênis casual com cabedal sintético e solado de EVA, numeração 34 a 44.",
+                "units": 95, "orders": 95, "revenue": "42750.00",
+                "audience": "Pessoas que procuram um calçado casual para uso urbano.",
+                "differentiators": "Cabedal sintético e solado de EVA; numeração 34 a 44.",
+                "limitations": "Não há preço, peso, resistência à água, indicação esportiva ou política de garantia cadastrados.",
+                "questions": "Em quais situações pretende usar o tênis? O que pesa mais para você: ajuste, material, estilo ou preço?",
+                "guidance": "Investigue o uso pretendido e o ajuste. Não apresente o modelo como próprio para corrida nem prometa impermeabilidade.",
+            },
+            {
+                "sku": "DEMO-VEST-004", "name": "Jaqueta Leve", "category": "Vestuário",
+                "description": "Jaqueta leve de poliéster, modelagem regular, tamanhos P a GG.",
+                "units": 74, "orders": 68, "revenue": "24480.00",
+                "audience": "Pessoas que procuram uma terceira peça leve para compor o vestuário.",
+                "differentiators": "Tecido de poliéster e modelagem regular, conforme cadastro demonstrativo.",
+                "limitations": "Não há informação sobre impermeabilidade, forro, temperatura de uso, cores ou preço.",
+                "questions": "Você procura uma camada para qual clima e ocasião? Há uma preferência de caimento ou tamanho?",
+                "guidance": "Explique apenas o material e a modelagem cadastrados; confirme com a loja qualquer proteção contra chuva ou frio.",
+            },
+        ]
+        period_start = date(2026, 10, 1)
+        period_end = date(2026, 10, 31)
+        for data in products:
+            product, _ = Product.objects.update_or_create(
+                company=company, sku=data["sku"],
+                defaults={
+                    "name": data["name"], "category": data["category"],
+                    "description": data["description"], "active": True,
+                },
+            )
+            ProductDemoPerformance.objects.update_or_create(
+                company=company, product=product, period_start=period_start, period_end=period_end,
+                defaults={
+                    "units_sold": data["units"], "orders": data["orders"],
+                    "revenue": decimal(data["revenue"]),
+                    "scenario_label": "Cenário simulado de demonstração",
+                },
+            )
+            specialization, _ = ProductSpecialization.objects.update_or_create(
+                company=company, title=f"{data['name']} · exemplo demonstrativo",
+                defaults={
+                    "category": data["category"], "audience": data["audience"],
+                    "differentiators": data["differentiators"], "limitations": data["limitations"],
+                    "recommended_questions": data["questions"], "sales_guidance": data["guidance"],
+                    "active": True,
+                },
+            )
+            specialization.products.set([product])
 
     @staticmethod
     def _seed_sales_method(company):

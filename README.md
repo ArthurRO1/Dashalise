@@ -24,7 +24,7 @@ Abra <http://127.0.0.1:8000>. A demonstração usa SQLite em `db.sqlite3`. O com
 
 São importadas 120 lojas, 1.101 perfis de usuários, a lista de 1.095 vendedores e gerentes (incluindo identidades históricas inativas para manter vendas de pessoas desligadas), 80.136 resumos diários vendedor-loja, metas individuais e por loja e 10.262 observações de lojas do ano anterior. A demonstração abre outubro de 2026, o último mês fechado antes do cenário de 02/11/2026. A comparação anual usa as datas 364 dias antes, conforme o arquivo.
 
-Os CSVs de venda são agregados por pessoa e dia; não incluem catálogo/produto por transação, clientes, motivos de cancelamento, nem conversas de atendimento. Por isso o painel calcula conversão, P.A., ticket médio, preço médio, metas e comissão, mas não inventa ranking de produtos nem taxa de cancelamento. O catálogo que o gerente pode cadastrar serve como referência para a IA e não é ligado às vendas históricas sem uma fonte detalhada.
+Os registros de venda são agregados por pessoa e dia; não incluem produto por venda, clientes, motivos de cancelamento, nem conversas de atendimento. Por isso o painel mantém conversão, P.A., ticket médio, preço médio, metas e comissão baseados nos registros operacionais. Para demonstração, `seed_demo` cria quatro produtos fictícios, especializações da IA e métricas simuladas de outubro em `ProductDemoPerformance`, uma tabela separada. Esses exemplos aparecem identificados na tela Produtos, ajudam a demonstrar comparações e perguntas sobre catálogo e nunca entram nas vendas, metas ou comissões dos funcionários.
 
 ### Assistente Gemini e pesquisa web automática
 
@@ -90,7 +90,7 @@ As rotas de dados usam `X-Demo-Role` com `funcionario`, `supervisor`, `gerente` 
 | `POST /api/sales/import-csv/` | Importação CSV para gerente/administrador |
 | `GET /api/teams/` | Equipes do escopo do perfil |
 | `GET /api/people/` | Resumo individual de vendas e metas (gerente/administrador) |
-| `GET /api/products/` | Produtos e desempenho |
+| `GET /api/products/` | Catálogo, vendas vinculadas e cenário simulado de produto, identificado separadamente |
 | `GET /api/alerts/` | Alertas inteligentes visíveis ao perfil e atualizados na consulta |
 | `GET/POST /api/conversations/` | Listar e criar conversas por venda/etapa |
 | `GET /api/conversations/{id}/` | Carregar mensagens e fontes da conversa |

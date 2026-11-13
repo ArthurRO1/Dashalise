@@ -103,6 +103,22 @@ class Product(models.Model):
         return self.name
 
 
+class ProductDemoPerformance(models.Model):
+    """Explicitly simulated product metrics, kept out of operational sales totals."""
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="product_demo_performance")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="demo_performance")
+    period_start = models.DateField()
+    period_end = models.DateField()
+    units_sold = models.PositiveIntegerField(default=0)
+    orders = models.PositiveIntegerField(default=0)
+    revenue = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    scenario_label = models.CharField(max_length=80, default="Cenário simulado de demonstração")
+
+    class Meta:
+        unique_together = [("company", "product", "period_start", "period_end")]
+        ordering = ["-period_start", "product__name"]
+
+
 class ProductSpecialization(models.Model):
     """Manager-curated product knowledge used as context for the sales assistant."""
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="specializations")

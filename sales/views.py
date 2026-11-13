@@ -20,7 +20,7 @@ from rest_framework import status
 
 from .models import (
     Alert, AssistantFeedback, AuditEvent, ChatMessage, Company, Conversation, Goal,
-    PriorYearStoreSales, Product, ProductSpecialization, Sale, SaleReflection, Team, TeamMembership,
+    PriorYearStoreSales, Product, ProductDemoPerformance, ProductSpecialization, Sale, SaleReflection, Team, TeamMembership,
 )
 from .assistant_service import generate_sales_guidance, is_contextual_follow_up, sales_answer
 from .dates import default_reporting_period, latest_data_date
@@ -467,9 +467,24 @@ def products_list(request):
     products = Product.objects.filter(company=company, active=True)
     sales = visible_sales(data_user, data_role, company).filter(status=Sale.Status.VALID)
     rows = []
+    demo_period_start, demo_period_end = default_reporting_period()
     for product in products:
         aggregate = sales.filter(product=product).aggregate(amount=Sum("amount"), orders=Sum("sales_count"))
-        rows.append({"id": product.id, "sku": product.sku, "name": product.name, "amount": aggregate["amount"] or 0, "orders": aggregate["orders"]})
+        demo = ProductDemoPerformance.objects.filter(
+            company=company, product=product,
+            period_start__lte=demo_period_end, period_end__gte=demo_period_start,
+        ).first()
+        rows.append({
+            "id": product.id, "sku": product.sku, "name": product.name,
+            "category": product.category, "description": product.description,
+            "amount": aggregate["amount"] or 0, "orders": aggregate["orders"] or 0,
+            "real_performance_available": bool(aggregate["orders"]),
+            "demo_performance": ({
+                "period_start": demo.period_start.isoformat(), "period_end": demo.period_end.isoformat(),
+                "revenue": str(demo.revenue), "orders": demo.orders, "units_sold": demo.units_sold,
+                "scenario_label": demo.scenario_label,
+            } if demo else None),
+        })
     return Response(rows)
 
 
@@ -547,7 +562,18 @@ def assistant_legacy(request):
             .order_by("-amount")
             .first()
         )
-        answer = f"O produto com maior receita no período é {top['product__name']} (R$ {top['amount']})." if top else "Os arquivos do Desafio 2 não relacionam os resumos diários a produtos. Posso analisar metas, receita, conversão, peças por venda e preço médio por peça."
+        if top:
+            answer = f"Entre os produtos vinculados às vendas deste período, o maior faturamento é de {top['product__name']} (R$ {top['amount']})."
+        else:
+            demo_top = ProductDemoPerformance.objects.filter(
+                company=company, period_start__lte=end, period_end__gte=start,
+            ).select_related("product").order_by("-revenue").first()
+            answer = (
+                f"No cenário simulado de demonstração, {demo_top.product.name} lidera a receita com R$ {demo_top.revenue}. "
+                "Esse exemplo é fictício e não representa resultados dos funcionários."
+                if demo_top else
+                "Ainda não há vendas vinculadas a produtos neste período. Posso consultar o catálogo e as características cadastradas."
+            )
     elif any(word in lower for word in ("conversão", "conversao")):
         answer = f"A conversão no período é {metrics['conversion_rate_percent']}%: {metrics['orders']} vendas divididas por {metrics['attendances']} atendimentos."
     elif any(word in lower for word in ("peças", "pecas", "p.a.", "preço médio", "preco medio")):
@@ -718,6 +744,58 @@ def _assistant_performance_evidence(user, role, company, start, end, question, *
     return evidence
 
 
+def _product_performance_evidence(user, role, company, start, end, question):
+    normalized = question.casefold()
+    sales_terms = (
+        "ranking", "mais vendido", "menos vendido", "mais vendeu", "vendeu mais", "quanto vendeu",
+        "quantas vendas", "unidades vendidas", "unidades", "faturamento", "receita",
+    )
+    demo_names = ProductDemoPerformance.objects.filter(company=company).values_list("product__name", flat=True)
+    mentions_product = any(term in normalized for term in ("produto", "produtos")) or any(
+        name.casefold() in normalized for name in demo_names
+    )
+    if not mentions_product or not any(term in normalized for term in sales_terms):
+        return None
+
+    actual_sales = visible_sales(user, role, company, start, end).filter(
+        status=Sale.Status.VALID, product__isnull=False,
+    ).values("product__name").annotate(
+        revenue=Sum("amount"), orders=Sum("sales_count"), units=Sum("pieces"),
+    ).order_by("-revenue")
+    actual_rows = list(actual_sales)
+    if actual_rows:
+        return {
+            "title": "Vendas vinculadas a produtos",
+            "period": f"{start:%d/%m/%Y} a {end:%d/%m/%Y}",
+            "items": [{
+                "label": row["product__name"],
+                "value": f"R$ {row['revenue']:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+                "detail": f"{row['orders']} vendas · {row['units']} unidades",
+            } for row in actual_rows[:4]],
+            "signal": "Indicadores calculados a partir das vendas vinculadas aos produtos no período.",
+            "scope": "vendas vinculadas do perfil",
+        }
+
+    demo_rows = list(ProductDemoPerformance.objects.filter(
+        company=company,
+        period_start__lte=end,
+        period_end__gte=start,
+    ).select_related("product").order_by("-revenue"))
+    if not demo_rows:
+        return None
+    return {
+        "title": "Cenário simulado de produtos",
+        "period": f"{demo_rows[0].period_start:%d/%m/%Y} a {demo_rows[0].period_end:%d/%m/%Y}",
+        "items": [{
+            "label": row.product.name,
+            "value": f"R$ {row.revenue:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+            "detail": f"{row.orders} vendas · {row.units_sold} unidades",
+        } for row in demo_rows[:4]],
+        "signal": "Estes valores são fictícios e servem apenas para demonstrar a análise de produtos. Não entram nos indicadores, metas ou comissões dos funcionários.",
+        "scope": "simulação demonstrativa da empresa",
+    }
+
+
 def _is_performance_coaching_request(question, employee):
     """Detect advice about an employee's results, keeping ordinary sales questions separate."""
     if not employee:
@@ -853,11 +931,16 @@ def assistant(request):
     user_message = ChatMessage.objects.create(conversation=conversation, role=ChatMessage.Role.USER, content=question)
     sources = []
     target_role = "funcionario" if employee else role
-    is_metric_or_record_query = is_internal_data_request(question)
-    evidence = _assistant_performance_evidence(
+    evidence = _product_performance_evidence(
+        employee or user, target_role, company, start, end, question,
+    ) or _assistant_performance_evidence(
         employee or user, target_role, company, start, end, question,
         selected_employee=bool(employee),
     )
+    is_product_performance_query = bool(evidence and evidence.get("title") in {
+        "Cenário simulado de produtos", "Vendas vinculadas a produtos",
+    })
+    is_metric_or_record_query = is_internal_data_request(question) or is_product_performance_query
     team_ranking = bool(evidence and evidence.get("people"))
     performance_action = _is_performance_coaching_request(question, employee)
     generated = None
