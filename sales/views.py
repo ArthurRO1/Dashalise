@@ -568,6 +568,9 @@ def _assistant_performance_evidence(user, role, company, start, end, question, *
         "melhorar minha conversão", "melhorar minha conversao", "melhorar meu resultado",
         "melhorar meu desempenho", "treinar", "treinamento", "acompanhar meu desempenho",
         "onde estou abaixo", "meu ponto fraco", "minha conversão", "minha conversao",
+        "o que sugere", "sugere que eu", "o que devo fazer", "devo fazer", "o que eu faço",
+        "o que faço", "que recomenda", "recomenda", "pior até agora", "pior ate agora",
+        "precisa melhorar", "precisa de ajuda", "como acompanhar",
     )
     personal_scope = role == "funcionario" or selected_employee
     team_terms = (
@@ -610,6 +613,7 @@ def _assistant_performance_evidence(user, role, company, start, end, question, *
         {"label": "Atendimentos", "value": str(metrics["attendances"])},
         {"label": "Conversão", "value": f"{metrics['conversion_rate_percent']:.1f}%", "detail": "vendas ÷ atendimentos"},
     ]
+    store_conversion = None
     if personal_scope:
         membership = TeamMembership.objects.filter(
             user=user, team__company=company,
@@ -622,6 +626,7 @@ def _assistant_performance_evidence(user, role, company, start, end, question, *
             team_orders = team_totals["orders"] or 0
             team_attendances = team_totals["attendances"] or 0
             team_conversion = team_orders / team_attendances * 100 if team_attendances else 0
+            store_conversion = team_conversion
             difference = metrics["conversion_rate_percent"] - team_conversion
             items.append({
                 "label": "Conversão agregada da loja",
@@ -646,6 +651,16 @@ def _assistant_performance_evidence(user, role, company, start, end, question, *
         "items": items,
         "signal": signal,
         "scope": "individual e comparação com loja" if personal_scope else "agregado do perfil",
+        "facts": {
+            "revenue": str(metrics["revenue"]),
+            "goal": str(metrics["goal"]),
+            "goal_progress_percent": metrics["goal_progress_percent"],
+            "remaining": str(metrics["remaining"]),
+            "orders": metrics["orders"],
+            "attendances": metrics["attendances"],
+            "conversion_rate_percent": metrics["conversion_rate_percent"],
+            "store_conversion_rate_percent": store_conversion,
+        },
     }
     if team_question:
         team_ids = scoped_teams.values_list("id", flat=True)
@@ -701,6 +716,54 @@ def _assistant_performance_evidence(user, role, company, start, end, question, *
         evidence["people_title"] = "Comparação das pessoas mencionadas" if len(mentioned_seller_ids) > 1 else "Menores faturamentos no escopo deste perfil"
         evidence["signal"] = "O recorte identifica diferenças de faturamento no período. Diferença de resultado é um ponto para conversar e investigar, não prova de falha; confirme escala, fluxo, estoque e contexto antes de decidir um treinamento."
     return evidence
+
+
+def _is_performance_coaching_request(question, employee):
+    """Detect advice about an employee's results, keeping ordinary sales questions separate."""
+    if not employee:
+        return False
+    normalized = question.casefold()
+    asks_for_action = any(term in normalized for term in (
+        "o que sugere", "sugere que eu", "o que devo fazer", "devo fazer", "o que eu faço",
+        "o que faço", "que recomenda", "recomenda", "como acompanhar", "como ajudar",
+        "como desenvolver", "como treinar", "precisa de ajuda",
+    ))
+    performance_context = any(term in normalized for term in (
+        "pior", "abaixo", "meta", "conversão", "conversao", "desempenho", "resultado",
+        "faturamento", "vendas", "vendeu", "atendimentos", "precisa melhorar",
+    ))
+    return asks_for_action and performance_context
+
+
+def _performance_coaching_answer(employee, evidence):
+    facts = evidence["facts"]
+
+    def brl(value):
+        return f"R$ {Decimal(value):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    progress = float(facts["goal_progress_percent"])
+    conversion = float(facts["conversion_rate_percent"])
+    store_conversion = facts.get("store_conversion_rate_percent")
+    if store_conversion is not None:
+        store_conversion = float(store_conversion)
+    response = (
+        f"Eu não chamaria {employee.first_name} de ‘pior’: os dados permitem comparar resultados, mas não explicam a causa. "
+        f"Em {evidence['period']}, {employee.first_name} vendeu {brl(facts['revenue'])} ({progress:.1f}% da meta), "
+        f"com conversão de {conversion:.1f}% — {facts['orders']} vendas em {facts['attendances']} atendimentos."
+    )
+    if store_conversion is not None:
+        difference = conversion - store_conversion
+        response += f" A conversão agregada da loja foi {store_conversion:.1f}% ({difference:+.1f} p.p. para o Lucas)."
+    response += (
+        "\n\nSugiro uma conversa individual e objetiva:\n"
+        "1. Apresente esses números como ponto de partida, sem comparar ou rotular a pessoa.\n"
+        "2. Pergunte o que aconteceu nos atendimentos: fluxo, escala, disponibilidade de produtos, perfil das demandas e onde ele sentiu dificuldade.\n"
+        "3. Escolham juntos uma habilidade para praticar. Se a conversão for a prioridade, treinem perguntas abertas para descobrir a necessidade antes de recomendar; os dados atuais não provam que essa seja a causa.\n"
+        "4. Combinem um acompanhamento curto e revisem vendas, atendimentos e conversão em um período comparável."
+        f"\n\nUma forma de começar: ‘{employee.first_name}, quero olhar seus números de outubro com você para entender o contexto e decidir como posso apoiar. O que mais dificultou seus atendimentos?’ "
+        f"Você também pode abrir o painel de {employee.first_name} para consultar os indicadores e os resumos diários."
+    )
+    return response
 
 
 @api_view(["POST"])
@@ -796,8 +859,9 @@ def assistant(request):
         selected_employee=bool(employee),
     )
     team_ranking = bool(evidence and evidence.get("people"))
+    performance_action = _is_performance_coaching_request(question, employee)
     generated = None
-    if not is_metric_or_record_query and not team_ranking and settings.GEMINI_API_KEY:
+    if not is_metric_or_record_query and not team_ranking and not performance_action and settings.GEMINI_API_KEY:
         try:
             generated = generate_sales_guidance(
                 company, question, stage, sale=sale, user=employee or user, role=target_role,
@@ -813,7 +877,10 @@ def assistant(request):
                 )
             }, status=502)
 
-    if team_ranking:
+    if performance_action and evidence:
+        answer = _performance_coaching_answer(employee, evidence)
+        source_label = "indicadores internos + orientação de acompanhamento"
+    elif team_ranking:
         lines = [
             f"{index}. {person['name']} ({person['team']}): {person['revenue']} em vendas, "
             f"{('sem meta individual cadastrada' if person['goal_progress'] == 'Sem meta' else person['goal_progress'] + ' da meta')}, {person['conversion']} de conversão "

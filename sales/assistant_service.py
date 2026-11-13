@@ -77,7 +77,7 @@ def retrieve_guidance(company, question, stage):
     for article in articles:
         body = f"{article.title} {article.content}".casefold()
         score = sum(1 for term in terms if term in body)
-        if article.stage == stage:
+        if stage != Conversation.Stage.GENERAL and article.stage == stage:
             score += 2
         if score:
             ranked.append((score, article))
@@ -174,6 +174,7 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
     system_instruction = (
         "Você é o assistente comercial da empresa. Responda em português do Brasil. "
         "Responda somente ao que a pergunta atual pede e comece pela resposta direta. "
+        "Não repita automaticamente o método de vendas, a etapa selecionada ou um roteiro padrão. Primeiro identifique a intenção concreta da pergunta e responda a ela com os dados e o contexto pertinentes. "
         "A conversa pode alternar entre vários assuntos. Trate cada pergunta como potencialmente independente; "
         "use mensagens anteriores, venda e etapa apenas quando a pergunta claramente se referir a elas. "
         "Nunca force o assunto da primeira mensagem sobre uma pergunta nova. Para uma pergunta autônoma, "
@@ -184,6 +185,7 @@ def generate_sales_guidance(company, question, stage, sale=None, user=None, role
         "Quando a pergunta pedir pesquisa científica, use a busca disponível, cite fontes publicadas e separe evidência externa dos dados da empresa. "
         "Diferencie cálculo descritivo, associação, hipótese e causalidade; não diga que uma prática ou este software causou resultado sem evidência experimental apropriada. "
         "Quando receber indicadores calculados pelo backend, use-os como evidência numérica somente se forem relevantes à pergunta; explicite o período e o escopo, mostre a comparação disponível e nunca trate uma diferença como diagnóstico da causa ou falha pessoal. "
+        "Se um gestor pedir o que fazer sobre o desempenho de uma pessoa, dê passos práticos de acompanhamento: apresente o sinal observado sem rótulos, investigue contexto em conversa individual, proponha uma habilidade para praticar somente como hipótese e combine quando rever os indicadores. Não troque essa resposta por um roteiro para o cliente. "
         "A base Rede Aurora é fictícia e não contém produtos por transação, motivos de cancelamento ou observações de conversas reais. "
         "Se faltar informação, diga isso e indique exatamente o que confirmar. Para situações com clientes, trate pressa e perfil "
         "como contexto momentâneo, não como característica fixa. Dê um exemplo de fala quando ajudar, adaptado ao pedido; "
@@ -412,7 +414,7 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             answer += f"\n\nAnotação desta venda ({latest_reflection.get_stage_display()}): {latest_reflection.challenge}"
         return answer, [], "especialização de produtos da empresa"
     if guidance:
-        answer = f"Etapa: {stage_label(stage)}. {guidance}"
+        answer = f"Etapa {stage_label(stage)}: {guidance}" if stage != Conversation.Stage.GENERAL else guidance
         if specializations:
             answer += "\n\nOrientação de produto disponível: " + "; ".join(
                 f"{item['title']} — {concise(item['guidance'] or item['differentiators'])}" for item in specializations[:2]
@@ -425,12 +427,12 @@ def sales_answer(user, role, company, question, stage, sale=None, about_another=
             Conversation.Stage.VALUE: "Você comentou que [prioridade]. Posso relacionar esse ponto ao recurso [recurso documentado] e mostrar como funciona?",
             Conversation.Stage.DECISION: "Entendi sua preocupação. O que você gostaria de confirmar para se sentir seguro sobre o próximo passo?",
             Conversation.Stage.LEARN: "Como foi sua experiência até aqui? O que funcionou e o que devemos ajustar para apoiar melhor?",
+            Conversation.Stage.GENERAL: "Para eu te orientar, o que você gostaria de resolver primeiro?",
         }
         example = examples.get(stage)
-        answer += "\n\nComo eu conduziria: confirmaria o que o cliente quer resolver, explicaria uma opção relevante e checaria se a proposta responde ao critério combinado."
-        if example:
+        asks_for_example = any(term in normalized for term in ("exemplo", "o que eu digo", "como eu falo", "frase para", "roteiro"))
+        if example and asks_for_example:
             answer += f"\n\nExemplo de fala: “{example}”"
-        answer += "\n\nUse isso como roteiro flexível. Confirme as prioridades com o cliente e não prometa benefícios que não estejam documentados."
         if latest_reflection:
             answer += f"\n\nAnotação desta venda ({latest_reflection.get_stage_display()}): {latest_reflection.challenge}"
         return answer, [], "base comercial da empresa"
